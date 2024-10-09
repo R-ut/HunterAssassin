@@ -97,10 +97,21 @@ void Scene1::Update(const float deltaTime) {
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
 	SteeringOutput* steering;
-	//create a seek algorithm
-	Flee* steeringAlgorithm;
-	steeringAlgorithm = new Flee(myNPC, game->getPlayer());
-	steering = steeringAlgorithm->getSteering();
+	
+	//Create a seek steering if the player is more than 2 units away
+	//else create a flee steering
+	if (VMath::mag(game->getPlayer()->getPos() - myNPC->getPos()) < 2.0f)
+	{
+		Flee* Fleer;
+		Fleer = new Flee(myNPC, game->getPlayer());
+		steering = Fleer->getSteering();
+	}
+	else {
+		Seek* Seeker;
+		Seeker = new Seek(myNPC, game->getPlayer());
+		steering = Seeker->getSteering();
+	}
+	
 
 	myNPC->Update(deltaTime, steering);
 
