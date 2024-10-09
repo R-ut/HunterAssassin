@@ -19,7 +19,7 @@ bool Scene1::OnCreate() {
 	SDL_GetWindowSize(window,&w,&h);
 	
 	Matrix4 ndc = MMath::viewportNDC(w, h);
-	Matrix4 ortho = MMath::orthographic(0.0f, xAxis, 0.0f, yAxis, 0.0f, 1.0f);
+	Matrix4 ortho = MMath::orthographic(0.0f, xAxis, 0.0f, yAxis, 0.0f, 5.0f);
 	projectionMatrix = ndc * ortho;
 	
 	/// Turn on the SDL imaging subsystem
@@ -30,7 +30,7 @@ bool Scene1::OnCreate() {
 	SDL_Surface* image;
 	SDL_Texture* texture;
 
-	image = IMG_Load("pacman.png");
+	image = IMG_Load("SandGhoul.gif");
 	texture = SDL_CreateTextureFromSurface(renderer, image);
 	game->getPlayer()->setImage(image);
 	game->getPlayer()->setTexture(texture);
@@ -38,7 +38,7 @@ bool Scene1::OnCreate() {
 	// Set up characters, choose good values for the constructor
 	// or use the defaults, like this
 	blinky = new Character();
-	if (!blinky->OnCreate(this) || !blinky->setTextureWith("Blinky.png") )
+	if (!blinky->OnCreate(this) || !blinky->setTextureWith("ToxicHound.gif") )
 	{
 		return false;
 	}
@@ -59,7 +59,7 @@ void Scene1::OnDestroy()
 
 void Scene1::Update(const float deltaTime) {
 	// Calculate and apply any steering for npc's
-	//blinky->Update(deltaTime);
+	blinky->Update(deltaTime);
 
 	// Update player
 	game->getPlayer()->Update(deltaTime);
@@ -70,10 +70,10 @@ void Scene1::Render() {
 	SDL_RenderClear(renderer);
 
 	// render any npc's
-	//blinky->render(0.15f);
+	blinky->render(5.15f);
 
 	// render the player
-	game->RenderPlayer(0.10f);
+	game->RenderPlayer(5.10f);
 
 	SDL_RenderPresent(renderer);
 }
