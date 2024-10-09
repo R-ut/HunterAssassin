@@ -9,7 +9,7 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	yAxis = 15.0f;
 
 	// create a NPC
-	blinky = nullptr;
+	Enemy1 = nullptr;
 }
 
 Scene1::~Scene1() {}
@@ -37,8 +37,8 @@ bool Scene1::OnCreate() {
 
 	// Set up characters, choose good values for the constructor
 	// or use the defaults, like this
-	blinky = new Character();
-	if (!blinky->OnCreate(this) || !blinky->setTextureWith("ToxicHound.gif") )
+	Enemy1 = new Character();
+	if (!Enemy1->OnCreate(this) || !Enemy1->setTextureWith("ToxicHound.gif") )
 	{
 		return false;
 	}
@@ -50,16 +50,16 @@ bool Scene1::OnCreate() {
 
 void Scene1::OnDestroy() 
 {
-	if (blinky)
+	if (Enemy1)
 	{
-		blinky->OnDestroy();
-		delete blinky;
+		Enemy1->OnDestroy();
+		delete Enemy1;
 	}
 }
 
 void Scene1::Update(const float deltaTime) {
 	// Calculate and apply any steering for npc's
-	blinky->Update(deltaTime);
+	Enemy1->Update(deltaTime);
 
 	// Update player
 	game->getPlayer()->Update(deltaTime);
@@ -70,7 +70,7 @@ void Scene1::Render() {
 	SDL_RenderClear(renderer);
 
 	// render any npc's
-	blinky->render(5.15f);
+	Enemy1->render(5.15f);
 
 	// render the player
 	game->RenderPlayer(5.10f);

@@ -17,7 +17,7 @@ private:
 	Matrix4 projectionMatrix;
     Matrix4     inverseProjection;
 
-	Character* blinky;
+	Character* Enemy1;
 
 public:
 	Scene1(SDL_Window* sdlWindow, GameManager* game_);
