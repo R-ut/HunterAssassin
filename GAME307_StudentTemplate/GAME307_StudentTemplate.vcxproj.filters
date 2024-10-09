@@ -15,6 +15,21 @@
     <ClCompile Include="Steering\SteeringOutput.cpp">
       <Filter>Steering</Filter>
     </ClCompile>
+    <ClCompile Include="KinematicSteeringOutput.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
+    <ClCompile Include="SteeringBehaviour.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticBody.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
+    <ClCompile Include="Seek.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
+    <ClCompile Include="Flee.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -29,6 +44,21 @@
       <Filter>Steering</Filter>
     </ClInclude>
     <ClInclude Include="Steering\SteeringOutput.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="KinematicSteeringOutput.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="SteeringBehaviour.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticBody.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="Seek.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="Flee.h">
       <Filter>Steering</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,6 +6,9 @@
 #include "Scene.h"
 #include "Character.h"
 
+#include "KinematicBody.h"
+#include "Seek.h"
+#include "Flee.h"
 
 using namespace MATH;
 class Scene1 : public Scene {
@@ -17,6 +20,7 @@ private:
 	Matrix4 projectionMatrix;
     Matrix4     inverseProjection;
 
+	KinematicBody* myNPC;
 	Character* Enemy1;
 
 public:
@@ -32,6 +36,8 @@ public:
 	SDL_Window* getWindow() { return window; }
     Matrix4 getProjectionMatrix() { return projectionMatrix; }
 	Matrix4 getInverseMatrix() { return inverseProjection; }
+
+	void renderMyNPC();
 };
 
 #endif
