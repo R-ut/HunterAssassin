@@ -9,6 +9,7 @@
 #include "KinematicBody.h"
 #include "Seek.h"
 #include "Flee.h"
+#include "Arrive.h"
 
 using namespace MATH;
 class Scene1 : public Scene {
