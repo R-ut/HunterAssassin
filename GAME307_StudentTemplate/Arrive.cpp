@@ -31,7 +31,7 @@ SteeringOutput* Arrive::getSteering()
 	else {
 		targetSpeed = maxSpeed * distance / slowRadius;
 	}
-
+	//create a temporary variables just like results
 	if (VMath::mag(target->getVel()) >= VERY_SMALL) {
 		target->getVel() = VMath::normalize(target->getVel()) * targetSpeed;
 	}
