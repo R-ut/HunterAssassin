@@ -32,8 +32,9 @@ SteeringOutput* Arrive::getSteering()
 		targetSpeed = maxSpeed * distance / slowRadius;
 	}
 
-	
-	target->getVel() = VMath::normalize(target->getVel()) * targetSpeed;
+	if (VMath::mag(target->getVel()) >= VERY_SMALL) {
+		target->getVel() = VMath::normalize(target->getVel()) * targetSpeed;
+	}
 	result->linear = target->getVel() - npc->getVel();
 	result->linear /= timeToTarget;
 
