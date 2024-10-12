@@ -5,7 +5,7 @@
 #include <VMath.h>
 #include "Scene.h"
 #include "Character.h"
-
+#include "Body.h"
 #include "KinematicBody.h"
 #include "Seek.h"
 #include "Flee.h"

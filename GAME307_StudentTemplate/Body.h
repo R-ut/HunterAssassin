@@ -28,6 +28,7 @@ protected:
     SDL_Surface* image;
     SDL_Texture* texture;
 
+
 public:
     Body();
 	Body(
@@ -45,6 +46,8 @@ public:
 	virtual ~Body();
     virtual void Update(float deltaTime);
     virtual void ApplyForce(Vec3 force_);
+
+	virtual float getRadius() const { return radius; }
     virtual Vec3 getPos() const { return pos; }
     virtual Vec3 getVel() const { return vel; }
     virtual Vec3 getAccel() const { return accel; }
@@ -72,7 +75,9 @@ public:
 
 	// Added this as public to deal with my demo 
 	// so that mouse position can be copied into a Body.
-    virtual void setPos( Vec3 pos );
+    virtual void setPos( Vec3 pos_);
+
+	virtual void setVel(Vec3 vel_);
 };
 
 #endif /* BODY_H */

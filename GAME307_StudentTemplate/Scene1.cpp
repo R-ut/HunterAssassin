@@ -39,8 +39,8 @@ bool Scene1::OnCreate() {
 
 	// Set up myNPC kinematic character
 	Vec3 position = Vec3(5.0f, 3.0f, 0.0f);
-	Vec3 velocity = Vec3(1.8f, 0.0f, 0.0f);
-	Vec3 acceleration = Vec3(0.8f, 0.0f, 0.0f);
+	Vec3 velocity = Vec3(5.0f, 0.0f, 0.0f);
+	Vec3 acceleration = Vec3(0.0f, 0.0f, 0.0f);
 	float mass = 1.0f;
 	float radius = 0.5f;
 
@@ -94,6 +94,7 @@ void Scene1::OnDestroy()
 }
 
 void Scene1::Update(const float deltaTime) {
+
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
 	SteeringOutput* steering;
@@ -118,9 +119,46 @@ void Scene1::Update(const float deltaTime) {
 	
 	myNPC->Update(deltaTime, steering);
 
+	// Calling the methods below
+	float radius = myNPC->getRadius();
+	Vec3 position = myNPC->getPos();
+	Vec3 velocity = myNPC->getVel();
+
+	float height, width;
+	height = game->getSceneHeight();
+	width = game->getSceneWidth();
+
+	float minX = radius; // Left boundary
+	float maxX = width - radius; // Right boundary
+	float minY = radius; // Bottom boundary
+	float maxY = height - radius; // Top boundary
+
+	//Setting myNPC position and velocity to keep them within the boundaries
+	if (position.x < minX) {
+		position.x = minX;
+		velocity.x = -velocity.x; // Reverse velocity
+	}
+	else if (position.x > maxX) {
+		position.x = maxX; 
+		velocity.x = -velocity.x; // Reverse velocity
+	}
+
+	if (position.y < minY) {
+		position.y = minY; 
+		velocity.y = -velocity.y; // Reverse velocity
+	}
+	else if (position.y > maxY) {
+		position.y = maxY; 
+		velocity.y = -velocity.y; // Reverse velocity
+	}
+
+	// Set the new position and velocity to myNPC
+	myNPC->setPos(position);
+	myNPC->setVel(velocity);
 
 	// Update player
 	game->getPlayer()->Update(deltaTime);
+
 }
 
 void Scene1::Render() {
