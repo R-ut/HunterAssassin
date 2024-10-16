@@ -10,11 +10,11 @@ protected:
 	float maxSpeed;
 	float targetRadius;
 	float slowRadius;
-	float timeToTarget;
+	float timeToTarget = 0.1f;
 
 
 public:
-    Arrive(const Body* npc_, const Body* target_, float maxAcceleration_, float maxSpeed_,float targetRadius_, float slowRadius_, float timeToTarget_ = 0.1f);
+    Arrive(const Body* npc_, const Body* target_);
     virtual ~Arrive();
     SteeringOutput* getSteering();
 };

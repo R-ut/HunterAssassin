@@ -133,7 +133,7 @@ void Scene1::Update(const float deltaTime) {
 	}
 	
 	Arrive* Arriver;
-	Arriver = new Arrive(myNPC, game->getPlayer(), myNPC->getMaxAcceleration(), myNPC->getMaxSpeed(), 0.4,0.2);
+	Arriver = new Arrive(myNPC, game->getPlayer());
 	steering = Arriver->getSteering();
 	
 	myNPC->Update(deltaTime, steering);
