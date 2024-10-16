@@ -58,7 +58,6 @@ bool Scene1::OnCreate() {
 	Vec3 acceleration = Vec3(0.0f, 0.0f, 0.0f);
 	float mass = 1.0f;
 	float radius = 0.5f;
-
 	myNPC = new KinematicBody(
 		position,
 		velocity,
@@ -120,17 +119,28 @@ void Scene1::Update(const float deltaTime) {
 	float distance = VMath::mag(game->getPlayer()->getPos() - myNPC->getPos());
 	//Create a seek steering if the player is more than 2 units away
 	//else create a flee steering
-	if (distance < game->getPlayer()->getRadius() * 4)
-	{
-		Arrive* Arriver;
-		Arriver = new Arrive(myNPC, game->getPlayer());
-		steering = Arriver->getSteering();
+	if (distance < game->getPlayer()->getRadius() * 4) {
+
+		// Calculate the player's velocity
+		Vec3 playerVelocity = game->getPlayer()->getVel();
+		float playerSpeed = VMath::mag(playerVelocity);
+
+		if (playerSpeed > 0.1f) { 
+			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 5.0f);// Max Prediction
+			steering = pursuer->getSteering();
+		}
+		else {
+			Arrive* Arriver;
+			Arriver = new Arrive(myNPC, game->getPlayer());
+			steering = Arriver->getSteering();
+		}
 	}
 	else {
 		Seek* Seeker;
 		Seeker = new Seek(myNPC, game->getPlayer());
 		steering = Seeker->getSteering();
 	}
+
 	
 	if (!steering)
 	{

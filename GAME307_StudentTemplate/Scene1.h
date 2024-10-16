@@ -10,6 +10,7 @@
 #include "Seek.h"
 #include "Flee.h"
 #include "Arrive.h"
+#include "Pursue.h"
 
 using namespace MATH;
 class Scene1 : public Scene {
@@ -27,6 +28,7 @@ private:
 	Character* Enemy1;
 
 public:
+
 	Scene1(SDL_Window* sdlWindow, GameManager* game_);
 	~Scene1();
 	bool OnCreate();

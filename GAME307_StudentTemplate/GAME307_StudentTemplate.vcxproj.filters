@@ -33,6 +33,9 @@
     <ClCompile Include="Arrive.cpp">
       <Filter>Steering</Filter>
     </ClCompile>
+    <ClCompile Include="Pursue.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -67,10 +70,17 @@
     <ClInclude Include="Arrive.h">
       <Filter>Steering</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Pursue.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Steering">
       <UniqueIdentifier>{e9a54b49-1d0c-4cf6-8f86-37bf296a82c5}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GAME307_StudentTemplate.rc" />
   </ItemGroup>
 </Project>
