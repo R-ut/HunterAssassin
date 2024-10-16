@@ -26,6 +26,21 @@ bool Scene1::OnCreate() {
 	/// Turn on the SDL imaging subsystem
 	IMG_Init(IMG_INIT_PNG);
 
+	// Load background image
+	SDL_Surface* bgSurface = IMG_Load("tileset x1.png"); // Image Path
+	if (bgSurface == nullptr) {
+		std::cerr << "Failed to load background image: " << IMG_GetError() << "\n";
+		return false;
+	}
+	backgroundTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+	SDL_FreeSurface(bgSurface);
+	if (backgroundTexture == nullptr) {
+		std::cerr << "Failed to create background texture: " << SDL_GetError() << "\n";
+		return false;
+	}
+
+
+
 	// Set player image to PacMan
 
 	SDL_Surface* image;
@@ -86,6 +101,10 @@ bool Scene1::OnCreate() {
 
 void Scene1::OnDestroy() 
 {
+	if (backgroundTexture) {
+		SDL_DestroyTexture(backgroundTexture);
+		backgroundTexture = nullptr;
+	}
 	if (Enemy1)
 	{
 		Enemy1->OnDestroy();
@@ -164,6 +183,16 @@ void Scene1::Update(const float deltaTime) {
 void Scene1::Render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
+
+	// Render the background
+	SDL_Rect bgRect;
+	bgRect.x = 0;
+	bgRect.y = 0;
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	bgRect.w = w;
+	bgRect.h = h;
+	SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
 
 	// render any npc's
 	Enemy1->render(5.15f);

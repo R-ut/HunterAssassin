@@ -20,6 +20,8 @@ private:
 	SDL_Renderer* renderer;
 	Matrix4 projectionMatrix;
     Matrix4     inverseProjection;
+	SDL_Texture* backgroundTexture;  // Background texture
+	
 
 	KinematicBody* myNPC;
 	Character* Enemy1;
