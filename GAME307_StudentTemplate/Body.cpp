@@ -106,3 +106,8 @@ void Body::setVel(Vec3 vel_)
 {
 	vel = vel_;
 }
+
+void Body::setColor(const Vec3& color_)
+{
+	color = color_;
+}

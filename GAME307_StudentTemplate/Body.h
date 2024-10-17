@@ -14,6 +14,7 @@ protected:
 	Vec3 pos;
 	Vec3 vel;
 	Vec3 accel;
+    Vec3 color;
 	float mass;
     float orientation;		// facing this direction
     float rotation;			// rotating at this speed (radians per second?)
@@ -32,7 +33,7 @@ protected:
 public:
     Body();
 	Body(
-        Vec3 pos_, Vec3 vel_, Vec3 accel_, 
+        Vec3 pos_, Vec3 vel_, Vec3 accel_,
         float mass_,
         float radius_,
         float orientation_,
@@ -78,6 +79,8 @@ public:
     virtual void setPos( Vec3 pos_);
 
 	virtual void setVel(Vec3 vel_);
+
+    void setColor(const Vec3& color_);
 };
 
 #endif /* BODY_H */

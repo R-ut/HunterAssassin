@@ -11,9 +11,9 @@ public:
     Pursue(const Body* npc_, const Body* target_, float maxPrediction_);
     ~Pursue();
 
-    // Override the steering behavior to add prediction logic
-    SteeringOutput* getSteering() override;
+    //steering behavior to add prediction logic
+    SteeringOutput* getSteering();
 };
 
-#endif // PURSUE_H
+#endif  //PURSUE_H
 

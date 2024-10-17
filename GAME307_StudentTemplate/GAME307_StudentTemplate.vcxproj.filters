@@ -36,6 +36,9 @@
     <ClCompile Include="Pursue.cpp">
       <Filter>Steering</Filter>
     </ClCompile>
+    <ClCompile Include="Evade.cpp">
+      <Filter>Steering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -72,6 +75,9 @@
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="Pursue.h">
+      <Filter>Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="Evade.h">
       <Filter>Steering</Filter>
     </ClInclude>
   </ItemGroup>

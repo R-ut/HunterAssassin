@@ -12,11 +12,11 @@ SteeringOutput* Pursue::getSteering()
     Vec3 direction = target->getPos() - npc->getPos();
 
     // Calculate the distance to the target by taking it's magnitude or length for each direction
-    float distance = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+    float distance = VMath::mag(direction);
 
     // Get the current speed of the NPC
     Vec3 velocity = npc->getVel();
-    float speed = sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
+	float speed = VMath::mag(velocity);
 
     // Decide on a reasonable prediction time
     float prediction;
@@ -30,11 +30,7 @@ SteeringOutput* Pursue::getSteering()
     // Predict the future position of the target
     Vec3 futurePosition = target->getPos() + target->getVel() * prediction;
 
-    // Set this predicted position as the target for Seek
-    direction = futurePosition - npc->getPos();
-
-    // Normalize the direction and apply the NPC's maximum acceleration
-    SteeringOutput* result = new SteeringOutput();
+    // Implemneting the Seek Code to acellerate it in that direction.
     result->linear = VMath::normalize(direction) * npc->getMaxAcceleration();
     result->angular = 0.0f;
 

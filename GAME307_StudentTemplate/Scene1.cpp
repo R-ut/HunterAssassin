@@ -64,6 +64,7 @@ bool Scene1::OnCreate() {
 		acceleration,
 		mass,
 		radius
+	
 	);
 	image = IMG_Load("Clyde.png");
 	texture = SDL_CreateTextureFromSurface(renderer, image);
@@ -110,6 +111,16 @@ void Scene1::OnDestroy()
 		delete Enemy1;
 	}
 }
+//Creating the enum class to visually Compare between different kind of steering.
+enum class BehaviorState {
+	Pursuing,
+	Evading,
+	Arriving,
+	Seeking,
+	None
+};
+// Initializing current state which is set to NONE for now.
+BehaviorState currentState = BehaviorState::None;
 
 void Scene1::Update(const float deltaTime) {
 
@@ -117,6 +128,8 @@ void Scene1::Update(const float deltaTime) {
 	Enemy1->Update(deltaTime);
 	SteeringOutput* steering;
 	float distance = VMath::mag(game->getPlayer()->getPos() - myNPC->getPos());
+	BehaviorState newState = currentState;
+
 	//Create a seek steering if the player is more than 2 units away
 	//else create a flee steering
 	if (distance < game->getPlayer()->getRadius() * 4) {
@@ -125,22 +138,58 @@ void Scene1::Update(const float deltaTime) {
 		Vec3 playerVelocity = game->getPlayer()->getVel();
 		float playerSpeed = VMath::mag(playerVelocity);
 
-		if (playerSpeed > 0.1f) { 
-			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 5.0f);// Max Prediction
+		if (playerSpeed > 0.1f) {
+			newState = BehaviorState::Pursuing;
+			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 0.5f);// Max Prediction of 0.5
 			steering = pursuer->getSteering();
+
 		}
 		else {
+			newState = BehaviorState::Arriving;
 			Arrive* Arriver;
 			Arriver = new Arrive(myNPC, game->getPlayer());
 			steering = Arriver->getSteering();
+
 		}
 	}
 	else {
-		Seek* Seeker;
-		Seeker = new Seek(myNPC, game->getPlayer());
-		steering = Seeker->getSteering();
-	}
+		if (distance > game->getPlayer()->getRadius() * 8) {
+			newState = BehaviorState::Seeking;
+			Seek* Seeker;
+			Seeker = new Seek(myNPC, game->getPlayer());
+			steering = Seeker->getSteering();
+		}
 
+		else {
+		newState = BehaviorState::Evading;
+		// Player is in the middle distance, evade them
+		Evade* evader = new Evade(myNPC, game->getPlayer(), 1.0f);  // Max prediction of 1.0
+		steering = evader->getSteering();
+
+	}
+	}
+	// Setting the enum State with messages.
+	if (newState != currentState) {
+		switch (newState) {
+		case BehaviorState::Pursuing:
+			std::cout << "Pursuing" << std::endl;
+			break;
+		case BehaviorState::Evading:
+			std::cout << "Evading" << std::endl;
+			break;
+		case BehaviorState::Arriving:
+			std::cout << "Arriving" << std::endl;
+			break;
+		case BehaviorState::Seeking:
+			std::cout << "Seeking" << std::endl;
+			break;
+		default:
+			break;
+		}
+
+		// Update the current state to the new state as myNPC steers.
+		currentState = newState;
+	}
 	
 	if (!steering)
 	{
