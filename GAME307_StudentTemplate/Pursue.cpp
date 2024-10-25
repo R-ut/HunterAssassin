@@ -31,7 +31,7 @@ SteeringOutput* Pursue::getSteering()
     Vec3 futurePosition = target->getPos() + target->getVel() * prediction;
 
     // Implemneting the Seek Code to acellerate it in that direction.
-    result->linear = VMath::normalize(direction) * npc->getMaxAcceleration();
+    result->linear = VMath::normalize(futurePosition - npc->getPos()) * npc->getMaxAcceleration();
     result->angular = 0.0f;
 
     return result;

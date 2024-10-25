@@ -1,6 +1,5 @@
 #include "Scene1.h"
 
-
 Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	window = sdlWindow_;
     game = game_;
@@ -51,7 +50,6 @@ bool Scene1::OnCreate() {
 	game->getPlayer()->setImage(image);
 	game->getPlayer()->setTexture(texture);
 
-
 	// Set up myNPC kinematic character
 	Vec3 position = Vec3(5.0f, 3.0f, 0.0f);
 	Vec3 velocity = Vec3(5.0f, 0.0f, 0.0f);
@@ -66,6 +64,7 @@ bool Scene1::OnCreate() {
 		radius
 	
 	);
+	
 	image = IMG_Load("Clyde.png");
 	texture = SDL_CreateTextureFromSurface(renderer, image);
 	//error checking
@@ -140,7 +139,7 @@ void Scene1::Update(const float deltaTime) {
 
 		if (playerSpeed > 0.1f) {
 			newState = BehaviorState::Pursuing;
-			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 0.5f);// Max Prediction of 0.5
+			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 20.0f);// Max Prediction of 0.5
 			steering = pursuer->getSteering();
 
 		}
@@ -163,7 +162,7 @@ void Scene1::Update(const float deltaTime) {
 		else {
 		newState = BehaviorState::Evading;
 		// Player is in the middle distance, evade them
-		Evade* evader = new Evade(myNPC, game->getPlayer(), 1.0f);  // Max prediction of 1.0
+		Evade* evader = new Evade(myNPC, game->getPlayer(), 20.0f);  // Max prediction of 1.0
 		steering = evader->getSteering();
 
 	}
@@ -238,6 +237,31 @@ void Scene1::Update(const float deltaTime) {
 	// Update player
 	game->getPlayer()->Update(deltaTime);
 
+	float collisionDistance = 1.0f;  // Collison Detection Distance so Characters don't overlap.
+	float pointDistance1 = VMath::mag(game->getPlayer()->getPos() - myNPC->getPos());
+
+	SDL_Surface* collisionImage = IMG_Load("Inky.png");
+	SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
+
+	// Free the collision image surface after creating the texture
+	SDL_FreeSurface(collisionImage);
+
+	if (pointDistance1 < collisionDistance) {
+		std::cout << "Collision Detected!!!" << std::endl;
+
+		myNPC->setTexture(collisionTexture);// Changing myNPC texture when collided.
+
+		// Calculating Direction myNPC needs to go after Collision
+		Vec3 New_direction = VMath::normalize(myNPC->getPos() - game->getPlayer()->getPos());
+
+		// Move myNPC to a new position to prevent overlaping.
+		Vec3 New_Position = myNPC->getPos() + New_direction * (collisionDistance - pointDistance1);
+		myNPC->setPos(New_Position);
+
+		// Calculating new velocity to make npc bounce back.
+		Vec3 New_Velocity = New_direction * VMath::mag(myNPC->getVel());
+		myNPC->setVel(New_Velocity);
+	}
 }
 
 void Scene1::Render() {

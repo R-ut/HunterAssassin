@@ -2,8 +2,8 @@
 #define CHARACTER_H
 
 #include <vector>
-
 #include "Scene.h"
+#include "Body.h"
 #include "KinematicBody.h"
 
 using namespace std;

@@ -113,7 +113,7 @@ void Character::render(float scale) const
 
 	// Convert character orientation from radians to degrees.
 	float orientation = body->getOrientation() * 180.0f / M_PI;
-
 	SDL_RenderCopyEx(renderer, body->getTexture(), nullptr, &square,
 		orientation, nullptr, SDL_FLIP_NONE);
 }
+
