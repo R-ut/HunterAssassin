@@ -12,6 +12,7 @@
 #include "Arrive.h"
 #include "Pursue.h"
 #include "Evade.h"
+#include "Wall.h"
 
 using namespace MATH;
 class Scene1 : public Scene {
@@ -23,7 +24,7 @@ private:
 	Matrix4 projectionMatrix;
     Matrix4     inverseProjection;
 	SDL_Texture* backgroundTexture;  // Background texture
-	
+	std::vector<Wall*> walls; // Vector to store wall objects
 
 	KinematicBody* myNPC;
 	Character* Enemy1;

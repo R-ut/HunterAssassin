@@ -39,6 +39,7 @@
     <ClCompile Include="Evade.cpp">
       <Filter>Steering</Filter>
     </ClCompile>
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -80,6 +81,7 @@
     <ClInclude Include="Evade.h">
       <Filter>Steering</Filter>
     </ClInclude>
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Steering">

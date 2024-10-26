@@ -38,7 +38,10 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 
-
+	// Initialize walls at desired positions
+	walls.push_back(new Wall(Vec3(100, 100, 0), 50, 10, renderer));
+	walls.push_back(new Wall(Vec3(200, 150, 0), 50, 10, renderer));
+	// Continue to add as many walls as needed
 
 	// Set player image to PacMan
 
@@ -109,6 +112,11 @@ void Scene1::OnDestroy()
 		Enemy1->OnDestroy();
 		delete Enemy1;
 	}
+	// Clean up walls
+	for (Wall* wall : walls) {
+		delete wall;
+	}
+	walls.clear();
 }
 //Creating the enum class to visually Compare between different kind of steering.
 enum class BehaviorState {
@@ -276,7 +284,12 @@ void Scene1::Render() {
 	SDL_GetWindowSize(window, &w, &h);
 	bgRect.w = w;
 	bgRect.h = h;
-	SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
+	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
+
+	// Render walls
+	for (Wall* wall : walls) {
+		wall->Render();
+	}
 
 	// render any npc's
 	Enemy1->render(5.15f);
