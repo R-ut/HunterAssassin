@@ -25,6 +25,8 @@ private:
     Matrix4     inverseProjection;
 	SDL_Texture* backgroundTexture;  // Background texture
 	std::vector<Wall*> walls; // Vector to store wall objects
+	float BlockSize = 45.0f;
+	
 
 	KinematicBody* myNPC;
 	Character* Enemy1;
