@@ -15,6 +15,9 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 Scene1::~Scene1() {}
 
 bool Scene1::OnCreate() {
+
+
+	createTiles(); 
 	int w, h;
 	SDL_GetWindowSize(window,&w,&h);
 	
@@ -140,6 +143,9 @@ bool Scene1::OnCreate() {
 	return true;
 }
 
+void Scene1::createTiles() {
+	singleTile = new Tile(Vec3(0, 0, 0), 5, 3, this);
+}
 void Scene1::OnDestroy() 
 {
 	if (backgroundTexture) {

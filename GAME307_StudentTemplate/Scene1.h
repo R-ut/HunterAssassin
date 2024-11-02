@@ -13,6 +13,10 @@
 #include "Pursue.h"
 #include "Evade.h"
 #include "Wall.h"
+#include "Graph.h"
+#include "Node.h"
+#include "Tile.h"
+
 
 using namespace MATH;
 class Scene1 : public Scene {
@@ -31,6 +35,16 @@ private:
 	KinematicBody* myNPC;
 	Character* Enemy1;
 
+
+
+
+	// 
+	Graph* Graph;
+	std::vector<Node*> sceneNodes;
+
+
+	Tile* singleTile;
+	void createTiles();
 public:
 
 	Scene1(SDL_Window* sdlWindow, GameManager* game_);

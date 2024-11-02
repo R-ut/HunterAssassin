@@ -139,8 +139,10 @@
     <ClCompile Include="Evade.cpp" />
     <ClCompile Include="Flee.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="KinematicSteeringOutput.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="PlayerBody.cpp" />
     <ClCompile Include="Pursue.cpp" />
     <ClCompile Include="Scene1.cpp" />
@@ -149,6 +151,7 @@
     <ClCompile Include="SteeringBehaviour.cpp" />
     <ClCompile Include="Steering\KinematicBody.cpp" />
     <ClCompile Include="Steering\SteeringOutput.cpp" />
+    <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Wall.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -160,7 +163,9 @@
     <ClInclude Include="Evade.h" />
     <ClInclude Include="Flee.h" />
     <ClInclude Include="GameManager.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="KinematicSteeringOutput.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="PlayerBody.h" />
     <ClInclude Include="Pursue.h" />
     <ClInclude Include="resource.h" />
@@ -171,6 +176,7 @@
     <ClInclude Include="SteeringBehaviour.h" />
     <ClInclude Include="Steering\KinematicBody.h" />
     <ClInclude Include="Steering\SteeringOutput.h" />
+    <ClInclude Include="Tile.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="Window.h" />

@@ -40,6 +40,15 @@
       <Filter>Steering</Filter>
     </ClCompile>
     <ClCompile Include="Wall.cpp" />
+    <ClCompile Include="Graph.cpp">
+      <Filter>PathFinding</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>PathFinding</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>PathFinding</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -82,10 +91,22 @@
       <Filter>Steering</Filter>
     </ClInclude>
     <ClInclude Include="Wall.h" />
+    <ClInclude Include="Graph.h">
+      <Filter>PathFinding</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>PathFinding</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>PathFinding</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Steering">
       <UniqueIdentifier>{e9a54b49-1d0c-4cf6-8f86-37bf296a82c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PathFinding">
+      <UniqueIdentifier>{7d9f6310-a443-4a83-bad8-9ea72c0bbf41}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
