@@ -10,7 +10,7 @@ private:
 	float width, height;
 	Uint8 r, g, b, a;
 	Vec3 pos;
-	//Node* node;
+	Node* node;
 	Scene* scene;
 
 	void setRGBA(Uint8 r_, Uint8 g_, Uint8 b_, Uint8 a_)
@@ -22,9 +22,9 @@ private:
 	}
 
 public:
-	Tile(/*Node* node_,*/ Vec3 pos_, float width_, float height_, Scene* scene_);
+	Tile(Node* node_, Vec3 pos_, float width_, float height_, Scene* scene_);
 	virtual ~Tile() {}
 	void Render();
-	//Node* getNode() { return node; }
+	Node* getNode() { return node; }
 };
 #endif

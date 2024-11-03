@@ -1,10 +1,10 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "Tile.h"
+#include "Scene.h"
 
-
-Tile::Tile(/*Node* node_,*/ Vec3 pos_, float width_, float height_, Scene* scene_) :
-	/*node{node_},*/  pos{pos_}, width{width_}, height{height_}, scene{scene_}
+Tile::Tile(Node* node_, Vec3 pos_, float width_, float height_, Scene* scene_) :
+	node{node_},  pos{pos_}, width{width_}, height{height_}, scene{scene_}
 {
 }
 

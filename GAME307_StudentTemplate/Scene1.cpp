@@ -6,7 +6,6 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	renderer = SDL_GetRenderer(window);
 	xAxis = 25.0f;
 	yAxis = 15.0f;
-
 	// create a NPC
 	myNPC = NULL;
 	Enemy1 = nullptr;
@@ -144,7 +143,39 @@ bool Scene1::OnCreate() {
 }
 
 void Scene1::createTiles() {
-	singleTile = new Tile(Vec3(0, 0, 0), 5, 3, this);
+	//resize tiles
+	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
+	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
+
+	tiles.resize(rows);
+
+	for (int i = 0; i < rows; i++) {
+		tiles[i].resize(cols);
+	}
+
+	sceneNodes.resize(cols * rows);
+
+	Node* n;
+	int label = 0;
+	Tile* t;
+	int i = 0;
+	int j = 0;
+	for (float y = 0.5f * tileSize; y < yAxis; y += tileSize) {
+		//Do stuff as y increases
+		for (float x = 0.5f * tileSize; x < xAxis; x += tileSize) {
+			//Do stuff as x increases
+			Vec3 tilePos = Vec3(x, y, 0.0f);
+			n = new Node(label);
+			sceneNodes[label] = n;
+			t = new Tile(n, tilePos, tileSize, tileSize, this);
+			tiles[i][j] = t;
+			j++;
+			label++;
+		}
+		j = 0;
+		i++;
+
+	}
 }
 void Scene1::OnDestroy() 
 {
@@ -339,6 +370,11 @@ void Scene1::Render() {
 	// render any npc's
 	Enemy1->render(5.15f);
 
+	for (int i = 0; tiles.size() > i; i++) {
+		for (int j = 0; tiles[i].size() > j; j++) {
+				tiles[i][j]->Render();
+		}
+	}
 	renderMyNPC();
 	// render the player
 	game->RenderPlayer(5.10f);

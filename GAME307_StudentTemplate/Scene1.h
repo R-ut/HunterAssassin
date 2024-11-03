@@ -30,7 +30,7 @@ private:
 	SDL_Texture* backgroundTexture;  // Background texture
 	std::vector<Wall*> walls; // Vector to store wall objects
 	float BlockSize = 45.0f;
-	
+	float tileSize = 1.0f;
 
 	KinematicBody* myNPC;
 	Character* Enemy1;
@@ -39,11 +39,11 @@ private:
 
 
 	// 
-	Graph* Graph;
+	Graph* graph;
 	std::vector<Node*> sceneNodes;
 
-
-	Tile* singleTile;
+	
+	std::vector<std::vector<Tile*>> tiles;
 	void createTiles();
 public:
 
