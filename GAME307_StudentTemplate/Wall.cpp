@@ -14,13 +14,15 @@ Wall::Wall(Vec3 pos, float w, float h, SDL_Renderer* renderer_)
     }
 }
 
-void Wall::Render() {
-
+void Wall::Render(const Matrix4& projectionMatrix) {
+    // Project wall position using the projection matrix
+    Vec3 screenCoords = projectionMatrix * position;
+    // Define the rectangle for rendering with increased scaling for visibility
     SDL_Rect wallRect = {
-        static_cast<int>(position.x),
-        static_cast<int>(position.y),
-        static_cast<int>(width),
-        static_cast<int>(height)
+        static_cast<int>(screenCoords.x),
+        static_cast<int>(screenCoords.y),
+        static_cast<int>(width * 10),  // Increased width for better visibility
+        static_cast<int>(height * 10)  // Increased height for better visibility
     };
     // Temporary color for testing
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red color for visibility

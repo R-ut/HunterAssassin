@@ -39,50 +39,18 @@ bool Scene1::OnCreate() {
 		std::cerr << "Failed to create background texture: " << SDL_GetError() << "\n";
 		return false;
 	}
-	
-	// Initialize walls at desired positions (position, width, height, renderer)
-	walls.push_back(new Wall(Vec3(0, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(50, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(100, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(150, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(200, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(250, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(300, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(350, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(400, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(450, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(500, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(550, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(600, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(650, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(700, 20, 0), BlockSize, BlockSize, renderer));
-	//walls.push_back(new Wall(Vec3(750, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(800, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(850, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(900, 20, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(950, 20, 0), BlockSize, BlockSize, renderer));
+	// Define wall size and scale it to make sure it's visible
+	float wallWidth = 4.0f;  // Increased width to make it more visible
+	float wallHeight = 4.0f;  // Increased height to make it more visible
 
-	walls.push_back(new Wall(Vec3(0, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(50, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(100, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(150, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(200, 250, 0), BlockSize, BlockSize, renderer));
-//	walls.push_back(new Wall(Vec3(250, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(300, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(350, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(400, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(450, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(500, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(550, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(600, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(650, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(700, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(750, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(800, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(850, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(900, 250, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(950, 250, 0), BlockSize, BlockSize, renderer));
-	// Continue to add as many walls as needed
+	// Position walls using values that keep them within the screen boundaries
+	walls.push_back(new Wall(Vec3(2.0f, 10.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall on left side
+	walls.push_back(new Wall(Vec3(6.0f, 12.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at center-left
+	walls.push_back(new Wall(Vec3(12.0f, 5.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at the center
+	walls.push_back(new Wall(Vec3(18.0f, 10.0f, 0.0f), wallWidth, wallHeight, renderer)); // Wall on right-half
+	walls.push_back(new Wall(Vec3(22.0f, 7.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall towards right side
+
+
 
 	// Set player image to PacMan
 
@@ -349,10 +317,10 @@ void Scene1::Update(const float deltaTime) {
 	}
 	// Update all dynamic elements in the scene
 	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
-	if (player) {
-		// Enforce wall collision logic for player
-		WallCollision(player);
-	}
+	//if (player) {
+	//	// Enforce wall collision logic for player
+	//	WallCollision(player);
+	//}
 }
 
 void Scene1::Render() {
@@ -369,9 +337,10 @@ void Scene1::Render() {
 	bgRect.h = h;
 	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
 
+
 	// Render walls
 	for (Wall* wall : walls) {
-		wall->Render();
+		wall->Render(projectionMatrix);
 	}
 
 	// render any npc's

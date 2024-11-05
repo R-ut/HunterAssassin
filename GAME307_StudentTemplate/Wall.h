@@ -15,7 +15,8 @@ private:
 
 public:
     Wall(Vec3 pos, float w, float h, SDL_Renderer* renderer_);
-    void Render();
+    void Render(const Matrix4& projectionMatrix);
+   // void Render();
     Vec3 getPosition() const { return position; }
     float getWidth() const { return width; }
     float getHeight() const { return height; }
