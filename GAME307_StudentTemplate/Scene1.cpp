@@ -40,15 +40,15 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 	// Define wall size and scale it to make sure it's visible
-	float wallWidth = 4.0f;  // Increased width to make it more visible
-	float wallHeight = 4.0f;  // Increased height to make it more visible
+	float wallWidth = 1.0f;  // Increased width to make it more visible
+	float wallHeight = 1.0f;  // Increased height to make it more visible
 
 	// Position walls using values that keep them within the screen boundaries
 	walls.push_back(new Wall(Vec3(2.0f, 10.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall on left side
-	walls.push_back(new Wall(Vec3(6.0f, 12.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at center-left
-	walls.push_back(new Wall(Vec3(12.0f, 5.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at the center
-	walls.push_back(new Wall(Vec3(18.0f, 10.0f, 0.0f), wallWidth, wallHeight, renderer)); // Wall on right-half
-	walls.push_back(new Wall(Vec3(22.0f, 7.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall towards right side
+	walls.push_back(new Wall(Vec3(6.0f, 11.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at center-left
+	walls.push_back(new Wall(Vec3(12.0f, 12.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at the center
+	walls.push_back(new Wall(Vec3(18.0f, 13.0f, 0.0f), wallWidth, wallHeight, renderer)); // Wall on right-half
+	walls.push_back(new Wall(Vec3(22.0f, 14.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall towards right side
 
 
 
@@ -315,12 +315,12 @@ void Scene1::Update(const float deltaTime) {
 		Vec3 New_Velocity = New_direction * VMath::mag(myNPC->getVel());
 		myNPC->setVel(New_Velocity);
 	}
-	// Update all dynamic elements in the scene
+	// Calling player from PlayerBody Class and then verifying if it retrieve from game->getplayer()
 	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
-	//if (player) {
-	//	// Enforce wall collision logic for player
-	//	WallCollision(player);
-	//}
+	if (player) {
+
+		WallCollision(player);
+	}
 }
 
 void Scene1::Render() {
@@ -381,59 +381,68 @@ void Scene1::renderMyNPC()
 }
 
 void Scene1::WallCollision(PlayerBody* player) {
-	// Get player position and velocity
+	// Get current player position and velocity
 	Vec3 playerPos = player->getPos();
 	Vec3 playerVel = player->getVel();
-	float playerWidth = 12.5f; // Assuming player's width is 12.5f
-	float playerHeight = 7.5f; // Assuming player's height is 7.5f
+	float playerWidth = 1.0f;  // Player width
+	float playerHeight = 1.0f; // Player height
 
+	// To avoid player teleport when collison occurs.
+	float SmoothMovementValue = 0.05f;
+
+	// Loop through all walls to check collisions
 	for (const Wall* wall : walls) {
+		// Get wall boundaries
 		float wallLeft = wall->getPosition().x;
 		float wallRight = wallLeft + wall->getWidth();
 		float wallTop = wall->getPosition().y;
 		float wallBottom = wallTop + wall->getHeight();
 
-		// Debugging logs for player to verify position
-		static Vec3 lastPosition = playerPos;  // Initialize lastPosition to player's starting position
+		// Check collision on the x-axis
+		// Checks if the player's x-axis overlaps with the wall's x-axis while also checking the overlap on the y-axis.
+		if (playerPos.x + playerWidth > wallLeft && playerPos.x < wallRight &&
+			playerPos.y + playerHeight > wallTop && playerPos.y < wallBottom) {
 
-		// Check if the player has moved
-		if (playerPos.x != lastPosition.x || playerPos.y != lastPosition.y || playerPos.z != lastPosition.z) {
-			std::cout << "Player position: (" << playerPos.x << ", " << playerPos.y << ", " << playerPos.z << ")" << std::endl;
+			// Determine the overlap amount for x-axis
+			// Amount of overlap if the player is on the left side of the wall.
+			float overlapLeft = (playerPos.x + playerWidth) - wallLeft;
+			//  Amount of overlap if the player is on the right side of the wall.
+			float overlapRight = wallRight - playerPos.x;
 
-			// Update lastPosition to the new position
-			lastPosition = playerPos;
+			// Resolve x-axis collision with gradual adjustment
+			if (overlapLeft < overlapRight) {
+				playerPos.x -= std::min(overlapLeft, SmoothMovementValue);  // The side with the smaller overlap is corrected first
+				// velocity on the x-axis is reduced (multiplied by 0.5f) to make it feel more natural
+				if (playerVel.x > 0) playerVel.x *= 0.5f; 
+				std::cout << "Left Collided!!" << std::endl;
+			}
+			else {
+				playerPos.x += std::min(overlapRight, SmoothMovementValue);  
+				if (playerVel.x < 0) playerVel.x *= 0.5f;  
+				std::cout << "Right Collided!!" << std::endl;
+			}
 		}
 
-		// Check for collision from all four sides
-		if (playerPos.x < wallRight && playerPos.x + playerWidth > wallLeft &&
-			playerPos.y < wallBottom && playerPos.y + playerHeight > wallTop) {
+		// Check collision on the y-axis
+		if (playerPos.x + playerWidth > wallLeft && playerPos.x < wallRight &&
+			playerPos.y + playerHeight > wallTop && playerPos.y < wallBottom) {
 
-			// Determine the side of collision and stop player movement accordingly
-			float overlapRight = wallRight - playerPos.x;
-			float overlapLeft = (playerPos.x + playerWidth) - wallLeft;
+			// Determine the overlap amount for y-axis
+			// Amount of overlap if the player is above the wall.
 			float overlapTop = (playerPos.y + playerHeight) - wallTop;
+			// Amount of overlap if the player is below the wall.
 			float overlapBottom = wallBottom - playerPos.y;
 
-			// Adjusted condition for detecting the smallest overlap
-			if (overlapRight < overlapLeft && overlapRight < overlapTop && overlapRight < overlapBottom) {
-				playerPos.x = wallRight;
-				playerVel.x = 0.0f;
-				std::cout << "Collision detected on right side of wall." << std::endl;
+			// Resolve y-axis collision with gradual adjustment
+			if (overlapTop < overlapBottom) {
+				playerPos.y -= std::min(overlapTop, SmoothMovementValue); 
+				if (playerVel.y > 0) playerVel.y *= 0.5f;  
+				std::cout << "Top Collided!!" << std::endl;
 			}
-			else if (overlapLeft < overlapRight && overlapLeft < overlapTop && overlapLeft < overlapBottom) {
-				playerPos.x = wallLeft - playerWidth;
-				playerVel.x = 0.0f;
-				std::cout << "Collision detected on left side of wall." << std::endl;
-			}
-			else if (overlapTop < overlapBottom) {  // Adjusted to only check against overlapBottom
-				playerPos.y = wallTop - playerHeight;
-				playerVel.y = 0.0f;
-				std::cout << "Collision detected on top side of wall." << std::endl;
-			}
-			else if (overlapBottom < overlapTop) {  // Adjusted to only check against overlapTop
-				playerPos.y = wallBottom;
-				playerVel.y = 0.0f;
-				std::cout << "Collision detected on bottom side of wall." << std::endl;
+			else {
+				playerPos.y += std::min(overlapBottom, SmoothMovementValue);  
+				if (playerVel.y < 0) playerVel.y *= 0.5f; 
+				std::cout << "Bottom Collided!!" << std::endl;
 			}
 		}
 	}
@@ -442,7 +451,6 @@ void Scene1::WallCollision(PlayerBody* player) {
 	player->setPos(playerPos);
 	player->setVel(playerVel);
 }
-
 void Scene1::HandleEvents(const SDL_Event& event)
 {
 	// send events to npc's as needed

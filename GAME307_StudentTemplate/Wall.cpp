@@ -21,8 +21,8 @@ void Wall::Render(const Matrix4& projectionMatrix) {
     SDL_Rect wallRect = {
         static_cast<int>(screenCoords.x),
         static_cast<int>(screenCoords.y),
-        static_cast<int>(width * 10),  // Increased width for better visibility
-        static_cast<int>(height * 10)  // Increased height for better visibility
+        static_cast<int>(width * 25),  // Increased width for better visibility
+        static_cast<int>(height * 25)  // Increased height for better visibility
     };
     // Temporary color for testing
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red color for visibility
