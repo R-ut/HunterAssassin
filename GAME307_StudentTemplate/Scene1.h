@@ -53,7 +53,9 @@ public:
 	void OnDestroy();
 	void Update(const float time);
 	void Render();
+	void WallCollision(PlayerBody* player);
     void HandleEvents(const SDL_Event &event);
+	const std::vector<Wall*>& getWalls() const;
 	float getxAxis() { return xAxis; }
 	float getyAxis() { return yAxis; }
 	SDL_Window* getWindow() { return window; }

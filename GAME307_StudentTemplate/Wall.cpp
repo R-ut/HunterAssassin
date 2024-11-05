@@ -14,11 +14,8 @@ Wall::Wall(Vec3 pos, float w, float h, SDL_Renderer* renderer_)
     }
 }
 
-Wall::~Wall() {
-    if (texture) SDL_DestroyTexture(texture);
-}
-
 void Wall::Render() {
+
     SDL_Rect wallRect = {
         static_cast<int>(position.x),
         static_cast<int>(position.y),

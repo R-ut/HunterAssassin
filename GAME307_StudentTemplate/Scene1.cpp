@@ -41,26 +41,26 @@ bool Scene1::OnCreate() {
 	}
 	
 	// Initialize walls at desired positions (position, width, height, renderer)
-	walls.push_back(new Wall(Vec3(0, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(50, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(100, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(150, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(200, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(250, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(300, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(350, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(400, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(450, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(500, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(550, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(600, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(650, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(700, 100, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(0, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(50, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(100, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(150, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(200, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(250, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(300, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(350, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(400, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(450, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(500, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(550, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(600, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(650, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(700, 20, 0), BlockSize, BlockSize, renderer));
 	//walls.push_back(new Wall(Vec3(750, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(800, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(850, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(900, 100, 0), BlockSize, BlockSize, renderer));
-	walls.push_back(new Wall(Vec3(950, 100, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(800, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(850, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(900, 20, 0), BlockSize, BlockSize, renderer));
+	walls.push_back(new Wall(Vec3(950, 20, 0), BlockSize, BlockSize, renderer));
 
 	walls.push_back(new Wall(Vec3(0, 250, 0), BlockSize, BlockSize, renderer));
 	walls.push_back(new Wall(Vec3(50, 250, 0), BlockSize, BlockSize, renderer));
@@ -93,6 +93,7 @@ bool Scene1::OnCreate() {
 	texture = SDL_CreateTextureFromSurface(renderer, image);
 	game->getPlayer()->setImage(image);
 	game->getPlayer()->setTexture(texture);
+	//game->getPlayer()->setPos(Vec3(0.0f, 0.0f, 0.0f));
 
 	// Set up myNPC kinematic character
 	Vec3 position = Vec3(5.0f, 3.0f, 0.0f);
@@ -346,6 +347,12 @@ void Scene1::Update(const float deltaTime) {
 		Vec3 New_Velocity = New_direction * VMath::mag(myNPC->getVel());
 		myNPC->setVel(New_Velocity);
 	}
+	// Update all dynamic elements in the scene
+	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
+	if (player) {
+		// Enforce wall collision logic for player
+		WallCollision(player);
+	}
 }
 
 void Scene1::Render() {
@@ -372,7 +379,7 @@ void Scene1::Render() {
 
 	for (int i = 0; tiles.size() > i; i++) {
 		for (int j = 0; tiles[i].size() > j; j++) {
-				tiles[i][j]->Render();
+				//tiles[i][j]->Render();
 		}
 	}
 	renderMyNPC();
@@ -404,10 +411,78 @@ void Scene1::renderMyNPC()
 	SDL_RenderCopyEx(renderer, myNPC->getTexture(), nullptr, &rect, degrees, nullptr, SDL_FLIP_NONE);
 }
 
+void Scene1::WallCollision(PlayerBody* player) {
+	// Get player position and velocity
+	Vec3 playerPos = player->getPos();
+	Vec3 playerVel = player->getVel();
+	float playerWidth = 12.5f; // Assuming player's width is 12.5f
+	float playerHeight = 7.5f; // Assuming player's height is 7.5f
+
+	for (const Wall* wall : walls) {
+		float wallLeft = wall->getPosition().x;
+		float wallRight = wallLeft + wall->getWidth();
+		float wallTop = wall->getPosition().y;
+		float wallBottom = wallTop + wall->getHeight();
+
+		// Debugging logs for player to verify position
+		static Vec3 lastPosition = playerPos;  // Initialize lastPosition to player's starting position
+
+		// Check if the player has moved
+		if (playerPos.x != lastPosition.x || playerPos.y != lastPosition.y || playerPos.z != lastPosition.z) {
+			std::cout << "Player position: (" << playerPos.x << ", " << playerPos.y << ", " << playerPos.z << ")" << std::endl;
+
+			// Update lastPosition to the new position
+			lastPosition = playerPos;
+		}
+
+		// Check for collision from all four sides
+		if (playerPos.x < wallRight && playerPos.x + playerWidth > wallLeft &&
+			playerPos.y < wallBottom && playerPos.y + playerHeight > wallTop) {
+
+			// Determine the side of collision and stop player movement accordingly
+			float overlapRight = wallRight - playerPos.x;
+			float overlapLeft = (playerPos.x + playerWidth) - wallLeft;
+			float overlapTop = (playerPos.y + playerHeight) - wallTop;
+			float overlapBottom = wallBottom - playerPos.y;
+
+			// Adjusted condition for detecting the smallest overlap
+			if (overlapRight < overlapLeft && overlapRight < overlapTop && overlapRight < overlapBottom) {
+				playerPos.x = wallRight;
+				playerVel.x = 0.0f;
+				std::cout << "Collision detected on right side of wall." << std::endl;
+			}
+			else if (overlapLeft < overlapRight && overlapLeft < overlapTop && overlapLeft < overlapBottom) {
+				playerPos.x = wallLeft - playerWidth;
+				playerVel.x = 0.0f;
+				std::cout << "Collision detected on left side of wall." << std::endl;
+			}
+			else if (overlapTop < overlapBottom) {  // Adjusted to only check against overlapBottom
+				playerPos.y = wallTop - playerHeight;
+				playerVel.y = 0.0f;
+				std::cout << "Collision detected on top side of wall." << std::endl;
+			}
+			else if (overlapBottom < overlapTop) {  // Adjusted to only check against overlapTop
+				playerPos.y = wallBottom;
+				playerVel.y = 0.0f;
+				std::cout << "Collision detected on bottom side of wall." << std::endl;
+			}
+		}
+	}
+
+	// Set updated position and velocity back to the player
+	player->setPos(playerPos);
+	player->setVel(playerVel);
+}
+
 void Scene1::HandleEvents(const SDL_Event& event)
 {
 	// send events to npc's as needed
 
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
+}
+
+const std::vector<Wall*>& Scene1::getWalls() const
+{
+	return walls;
 }

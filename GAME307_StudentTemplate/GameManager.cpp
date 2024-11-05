@@ -88,6 +88,7 @@ bool GameManager::OnCreate() {
         OnDestroy();
         return false;
     }
+
        
 	return true;
 }
@@ -190,6 +191,7 @@ SDL_Renderer* GameManager::getRenderer()
 void GameManager::RenderPlayer(float scale)
 {
     player->Render(scale);
+   
 }
 
 void GameManager::LoadScene( int i )
