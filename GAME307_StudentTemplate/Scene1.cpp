@@ -43,17 +43,39 @@ bool Scene1::OnCreate() {
 	float wallWidth = 1.0f;  // Increased width to make it more visible
 	float wallHeight = 1.0f;  // Increased height to make it more visible
 
+
 	// Position walls using values that keep them within the screen boundaries
-	walls.push_back(new Wall(Vec3(2.0f, 10.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall on left side
-	walls.push_back(new Wall(Vec3(6.0f, 11.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at center-left
-	walls.push_back(new Wall(Vec3(12.0f, 12.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall at the center
-	walls.push_back(new Wall(Vec3(18.0f, 13.0f, 0.0f), wallWidth, wallHeight, renderer)); // Wall on right-half
-	walls.push_back(new Wall(Vec3(22.0f, 14.0f, 0.0f), wallWidth, wallHeight, renderer));  // Wall towards right side
+	// Top boundary along y = 0.5f from x = 0.0f to x = 25.0f
+	for (float x = 0.0f; x <= 25.0f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 0.5f, 0.0f), wallWidth, wallHeight, renderer));
+	}
 
+	// Bottom boundary along y = 15.0f from x = 0.0f to x = 25.0f
+	for (float x = 0.0f; x <= 25.0f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 15.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
 
+	// Left boundary along x = 0.0f from y = 0.5f to y = 15.0f
+	for (float y = 0.5f; y <= 15.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(0.0f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Right boundary along x = 24.5f from y = 0.5f to y = 15.0f
+	for (float y = 0.5f; y <= 15.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(24.5f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+    // Horizontal wall segment along y = 8.0f from x = 0.0f to x = 10.5f
+	for (float x = 0.0f; x <= 10.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 8.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Horizontal wall segment along y = 12.0f from x = 24.5f down to x = 8.5f
+	for (float x = 24.5f; x >= 8.5f; x -= 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 12.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
 
 	// Set player image to PacMan
-
 	SDL_Surface* image;
 	SDL_Texture* texture;
 
@@ -321,6 +343,11 @@ void Scene1::Update(const float deltaTime) {
 
 		WallCollision(player);
 	}
+
+	// Calling wallCollisonNPC function 
+	if (myNPC) {
+		WallCollision(myNPC);
+	}
 }
 
 void Scene1::Render() {
@@ -414,12 +441,12 @@ void Scene1::WallCollision(PlayerBody* player) {
 				playerPos.x -= std::min(overlapLeft, SmoothMovementValue);  // The side with the smaller overlap is corrected first
 				// velocity on the x-axis is reduced (multiplied by 0.5f) to make it feel more natural
 				if (playerVel.x > 0) playerVel.x *= 0.5f; 
-				std::cout << "Left Collided!!" << std::endl;
+				std::cout << "PLAYER Left Collided!!" << std::endl;
 			}
 			else {
 				playerPos.x += std::min(overlapRight, SmoothMovementValue);  
 				if (playerVel.x < 0) playerVel.x *= 0.5f;  
-				std::cout << "Right Collided!!" << std::endl;
+				std::cout << "PLAYER Right Collided!!" << std::endl;
 			}
 		}
 
@@ -437,12 +464,12 @@ void Scene1::WallCollision(PlayerBody* player) {
 			if (overlapTop < overlapBottom) {
 				playerPos.y -= std::min(overlapTop, SmoothMovementValue); 
 				if (playerVel.y > 0) playerVel.y *= 0.5f;  
-				std::cout << "Top Collided!!" << std::endl;
+				std::cout << "PLAYER Top Collided!!" << std::endl;
 			}
 			else {
 				playerPos.y += std::min(overlapBottom, SmoothMovementValue);  
 				if (playerVel.y < 0) playerVel.y *= 0.5f; 
-				std::cout << "Bottom Collided!!" << std::endl;
+				std::cout << "PLAYER Bottom Collided!!" << std::endl;
 			}
 		}
 	}
@@ -451,10 +478,75 @@ void Scene1::WallCollision(PlayerBody* player) {
 	player->setPos(playerPos);
 	player->setVel(playerVel);
 }
+
+// Setting Wall Collison for NPC
+void Scene1::WallCollision(KinematicBody* myNPC) {
+	// Get current NPC position and velocity
+	Vec3 npcPos = myNPC->getPos();
+	Vec3 npcVel = myNPC->getVel();
+	float npcWidth = 1.0f;  // NPC width
+	float npcHeight = 1.0f; // NPC height
+
+	// To avoid NPC teleport when collision occurs.
+	float SmoothMovementValue = 0.05f;
+
+	// Loop through all walls to check collisions
+	for (const Wall* wall : walls) {
+		// Get wall boundaries
+		float wallLeft = wall->getPosition().x;
+		float wallRight = wallLeft + wall->getWidth();
+		float wallTop = wall->getPosition().y;
+		float wallBottom = wallTop + wall->getHeight();
+
+		// Check collision on the x-axis
+		if (npcPos.x + npcWidth > wallLeft && npcPos.x < wallRight &&
+			npcPos.y + npcHeight > wallTop && npcPos.y < wallBottom) {
+
+			// Determine the overlap amount for x-axis
+			float overlapLeft = (npcPos.x + npcWidth) - wallLeft;
+			float overlapRight = wallRight - npcPos.x;
+
+			// Resolve x-axis collision with gradual adjustment
+			if (overlapLeft < overlapRight) {
+				npcPos.x -= std::min(overlapLeft, SmoothMovementValue);
+				if (npcVel.x > 0) npcVel.x *= 0.5f;
+				std::cout << "NPC Left Collided!!" << std::endl;
+			}
+			else {
+				npcPos.x += std::min(overlapRight, SmoothMovementValue);
+				if (npcVel.x < 0) npcVel.x *= 0.5f;
+				std::cout << "NPC Right Collided!!" << std::endl;
+			}
+		}
+
+		// Check collision on the y-axis
+		if (npcPos.x + npcWidth > wallLeft && npcPos.x < wallRight &&
+			npcPos.y + npcHeight > wallTop && npcPos.y < wallBottom) {
+
+			// Determine the overlap amount for y-axis
+			float overlapTop = (npcPos.y + npcHeight) - wallTop;
+			float overlapBottom = wallBottom - npcPos.y;
+
+			// Resolve y-axis collision with gradual adjustment
+			if (overlapTop < overlapBottom) {
+				npcPos.y -= std::min(overlapTop, SmoothMovementValue);
+				if (npcVel.y > 0) npcVel.y *= 0.5f;
+				std::cout << "NPC Top Collided!!" << std::endl;
+			}
+			else {
+				npcPos.y += std::min(overlapBottom, SmoothMovementValue);
+				if (npcVel.y < 0) npcVel.y *= 0.5f;
+				std::cout << "NPC Bottom Collided!!" << std::endl;
+			}
+		}
+	}
+
+	// Set updated position and velocity back to the NPC
+	myNPC->setPos(npcPos);
+	myNPC->setVel(npcVel);
+}
 void Scene1::HandleEvents(const SDL_Event& event)
 {
-	// send events to npc's as needed
-
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
 }

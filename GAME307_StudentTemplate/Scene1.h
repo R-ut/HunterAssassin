@@ -53,7 +53,8 @@ public:
 	void Update(const float time);
 	void Render();
 	void WallCollision(PlayerBody* player);
-    void HandleEvents(const SDL_Event &event);
+	void WallCollision(KinematicBody* myNPC);
+	void HandleEvents(const SDL_Event &event);
 	const std::vector<Wall*>& getWalls() const;
 	float getxAxis() { return xAxis; }
 	float getyAxis() { return yAxis; }
