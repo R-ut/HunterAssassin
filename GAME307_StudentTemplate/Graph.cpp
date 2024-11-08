@@ -17,7 +17,7 @@ bool Graph::OnCreate(std::vector<Node*> nodes_)
 {
     // given a list of nodes, initialize a matrix of costs with 0.0
     int numNodes = nodes_.size();
-
+    nodes = nodes_;
     cost.resize(numNodes);
     for (int i = 0; i < numNodes; i++)
     {
@@ -27,7 +27,7 @@ bool Graph::OnCreate(std::vector<Node*> nodes_)
             std::cerr << "node with label 'i' not in the 'i' position for " << i << "\n";
             return false;
         }
-        node[i] = nodes_[i];
+        nodes[i] = nodes_[i];
 
         // set up connections
         cost[i].resize(numNodes);
@@ -43,7 +43,7 @@ bool Graph::OnCreate(std::vector<Node*> nodes_)
 
 int Graph::numNodes()
 {
-    return node.size();
+    return nodes.size();
 }
 
 void Graph::addWeightedConnection(Node* fromNode, Node* toNode, float weight)

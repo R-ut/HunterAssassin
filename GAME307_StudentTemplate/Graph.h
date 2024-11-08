@@ -13,7 +13,7 @@ class Graph
 {
 private:
 	// a list of nodes
-	std::map<int, Node*> node; // essentially an array, e.g. node[2]
+	std::vector<Node*> nodes; // essentially an array, e.g. node[2]
 
 	// a 2D matrix of the connection costs/weights
 	std::vector< std::vector< float > > cost;
@@ -24,7 +24,7 @@ public:
 	~Graph();
 	bool OnCreate(std::vector< Node* > nodes_);
 	int numNodes();
-	Node* getNode(int label) { return node[label]; }
+	Node* getNode(int label) { return nodes[label]; }
 	void addWeightedConnection(Node* fromNode, Node* toNode, float weight);
 	std::vector<Node*> neighbours(Node* fromNode);
 	std::vector<Node*> findPath(Node* startNode, Node* goalNode);

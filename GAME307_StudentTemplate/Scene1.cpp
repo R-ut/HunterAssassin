@@ -39,6 +39,7 @@ bool Scene1::OnCreate() {
 		std::cerr << "Failed to create background texture: " << SDL_GetError() << "\n";
 		return false;
 	}
+	/*
 	// Define wall size and scale it to make sure it's visible
 	float wallWidth = 1.0f;  // Increased width to make it more visible
 	float wallHeight = 1.0f;  // Increased height to make it more visible
@@ -74,7 +75,7 @@ bool Scene1::OnCreate() {
 	for (float x = 24.5f; x >= 8.5f; x -= 0.5f) {
 		walls.push_back(new Wall(Vec3(x, 12.0f, 0.0f), wallWidth, wallHeight, renderer));
 	}
-
+	*/
 	// Set player image to PacMan
 	SDL_Surface* image;
 	SDL_Texture* texture;
@@ -130,13 +131,53 @@ bool Scene1::OnCreate() {
 
 	// end of character set ups
 
+	// Set up the graph
+	graph = new Graph();
+	if (!graph->OnCreate(sceneNodes)) {
+		std::cerr << "Graph creation failed. Nodes may not be properly initialized.\n";
+		return false;
+	}
+
+	// Add weighted connections between nodes in the graph
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			int currentLabel = i * cols + j;
+			Node* currentNode = sceneNodes[currentLabel];
+
+			// Connect to the top neighbor
+			if (i > 0) {
+				int topNeighborLabel = (i - 1) * cols + j;
+				Node* topNeighbor = sceneNodes[topNeighborLabel];
+				graph->addWeightedConnection(currentNode, topNeighbor, 1.0f);
+			}
+
+			// Connect to the bottom neighbor
+			if (i < rows - 1) {
+				int bottomNeighborLabel = (i + 1) * cols + j;
+				Node* bottomNeighbor = sceneNodes[bottomNeighborLabel];
+				graph->addWeightedConnection(currentNode, bottomNeighbor, 1.0f);
+			}
+
+			// Connect to the left neighbor
+			if (j > 0) {
+				int leftNeighborLabel = i * cols + (j - 1);
+				Node* leftNeighbor = sceneNodes[leftNeighborLabel];
+				graph->addWeightedConnection(currentNode, leftNeighbor, 1.0f);
+			}
+
+			// Connect to the right neighbor
+			if (j < cols - 1) {
+				int rightNeighborLabel = i * cols + (j + 1);
+				Node* rightNeighbor = sceneNodes[rightNeighborLabel];
+				graph->addWeightedConnection(currentNode, rightNeighbor, 1.0f);
+			}
+		}
+	}
 	return true;
 }
 
 void Scene1::createTiles() {
-	//resize tiles
-	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
-	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
+	
 
 	tiles.resize(rows);
 
@@ -179,11 +220,12 @@ void Scene1::OnDestroy()
 		Enemy1->OnDestroy();
 		delete Enemy1;
 	}
-	// Clean up walls
+	/*// Clean up walls
 	for (Wall* wall : walls) {
 		delete wall;
 	}
 	walls.clear();
+	*/
 }
 //Creating the enum class to visually Compare between different kind of steering.
 enum class BehaviorState {
@@ -197,6 +239,14 @@ enum class BehaviorState {
 BehaviorState currentState = BehaviorState::None;
 
 void Scene1::Update(const float deltaTime) {
+
+
+
+
+
+
+
+
 
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
@@ -375,7 +425,7 @@ void Scene1::Render() {
 
 	for (int i = 0; tiles.size() > i; i++) {
 		for (int j = 0; tiles[i].size() > j; j++) {
-				//tiles[i][j]->Render();
+				tiles[i][j]->Render();
 		}
 	}
 	renderMyNPC();

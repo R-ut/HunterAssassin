@@ -30,6 +30,10 @@ private:
 	SDL_Texture* backgroundTexture;  // Background texture
 	std::vector<Wall*> walls; // Vector to store wall object
 	float tileSize = 1.0f;
+	//resize tiles
+	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
+	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
+
 
 	KinematicBody* myNPC;
 	Character* Enemy1;
