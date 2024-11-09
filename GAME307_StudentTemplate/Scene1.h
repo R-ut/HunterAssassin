@@ -29,8 +29,8 @@ private:
     Matrix4     inverseProjection;
 	SDL_Texture* backgroundTexture;  // Background texture
 	std::vector<Wall*> walls; // Vector to store wall object
-	float tileSize = 1.0f;
-	//resize tiles
+	float tileSize = 1.0f; // Size of each tile
+	//calculate the number of rows and columns for the tiles
 	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
 	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
 
@@ -41,7 +41,6 @@ private:
 
 
 
-	// 
 	Graph* graph;
 	std::vector<Node*> sceneNodes;
 
@@ -56,12 +55,18 @@ public:
 	void OnDestroy();
 	void Update(const float time);
 	void Render();
+	//overridden work 
+	/*
+	const std::vector<Wall*>& getWalls() const;
 	void WallCollision(PlayerBody* player);
 	void WallCollision(KinematicBody* myNPC);
+	*/
 	void HandleEvents(const SDL_Event &event);
+	//Highlight the explored tiles as well as the path tiles
 	void highlightExploredTiles(Node* startNode, Node* targetNode);
+	//Function to add a wall to the graph
 	void addWallToGraph(int tileX, int tileY);
-	const std::vector<Wall*>& getWalls() const;
+	
 	float getxAxis() { return xAxis; }
 	float getyAxis() { return yAxis; }
 	SDL_Window* getWindow() { return window; }

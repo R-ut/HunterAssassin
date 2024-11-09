@@ -17,7 +17,7 @@ Scene1::~Scene1() {}
 
 bool Scene1::OnCreate() {
 
-
+	//create tiles
 	createTiles(); 
 	int w, h;
 	SDL_GetWindowSize(window,&w,&h);
@@ -41,6 +41,7 @@ bool Scene1::OnCreate() {
 		std::cerr << "Failed to create background texture: " << SDL_GetError() << "\n";
 		return false;
 	}
+	//Lakshay's and deep's code , Rut had commented that out for his work. Sorry.
 	/*
 	// Define wall size and scale it to make sure it's visible
 	float wallWidth = 1.0f;  // Increased width to make it more visible
@@ -141,35 +142,36 @@ bool Scene1::OnCreate() {
 	}
 
 	// Add weighted connections between nodes in the graph
+	//Firstly loop through the rows and cols ie go from bottom left to top right
 	for (int i = 0; i < rows; ++i) {
 		for (int j = 0; j < cols; ++j) {
-			int currentLabel = i * cols + j;
+			int currentLabel = i * cols + j; // to manover over the rows I am doing i * 25 + col
 			Node* currentNode = sceneNodes[currentLabel];
 
 			// Connect to the top neighbor
 			if (i > 0) {
-				int topNeighborLabel = (i - 1) * cols + j;
-				Node* topNeighbor = sceneNodes[topNeighborLabel];
-				graph->addWeightedConnection(currentNode, topNeighbor, 1.0f);
-			}
-
-			// Connect to the bottom neighbor
-			if (i < rows - 1) {
-				int bottomNeighborLabel = (i + 1) * cols + j;
+				int bottomNeighborLabel = (i - 1) * cols + j;//move to row bellow
 				Node* bottomNeighbor = sceneNodes[bottomNeighborLabel];
 				graph->addWeightedConnection(currentNode, bottomNeighbor, 1.0f);
 			}
 
+			// Connect to the bottom neighbor
+			if (i < rows - 1) {
+				int topNeighborLabel = (i + 1) * cols + j;//move to row above
+				Node* topNeighbor = sceneNodes[topNeighborLabel];
+				graph->addWeightedConnection(currentNode, topNeighbor, 1.0f);
+			}
+
 			// Connect to the left neighbor
 			if (j > 0) {
-				int leftNeighborLabel = i * cols + (j - 1);
+				int leftNeighborLabel = i * cols + (j - 1);//move to left col
 				Node* leftNeighbor = sceneNodes[leftNeighborLabel];
 				graph->addWeightedConnection(currentNode, leftNeighbor, 1.0f);
 			}
 
 			// Connect to the right neighbor
 			if (j < cols - 1) {
-				int rightNeighborLabel = i * cols + (j + 1);
+				int rightNeighborLabel = i * cols + (j + 1);//move to right col
 				Node* rightNeighbor = sceneNodes[rightNeighborLabel];
 				graph->addWeightedConnection(currentNode, rightNeighbor, 1.0f);
 			}
@@ -222,6 +224,17 @@ void Scene1::OnDestroy()
 		Enemy1->OnDestroy();
 		delete Enemy1;
 	}
+
+	if (graph) {
+		graph->~Graph();
+	}
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			tiles[i][j]->~Tile();
+		}
+	}
+
+
 	/*// Clean up walls
 	for (Wall* wall : walls) {
 		delete wall;
@@ -230,7 +243,8 @@ void Scene1::OnDestroy()
 	*/
 }
 //Creating the enum class to visually Compare between different kind of steering.
-enum class BehaviorState {
+//Steering behaviours
+/*enum class BehaviorState {
 	Pursuing,
 	Evading,
 	Arriving,
@@ -239,6 +253,7 @@ enum class BehaviorState {
 };
 // Initializing current state which is set to NONE for now.
 BehaviorState currentState = BehaviorState::None;
+*/
 
 void Scene1::Update(const float deltaTime) {
 	/*
@@ -409,15 +424,17 @@ void Scene1::Render() {
 	bgRect.h = h;
 	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
 
-
+	//Rut overrode this work
+	 /*
 	// Render walls
 	for (Wall* wall : walls) {
 		wall->Render(projectionMatrix);
 	}
+	*/
 
 	// render any npc's
 	Enemy1->render(5.15f);
-
+	//Rendering tiles
 	for (int i = 0; tiles.size() > i; i++) {
 		for (int j = 0; tiles[i].size() > j; j++) {
 				tiles[i][j]->Render();
@@ -452,6 +469,8 @@ void Scene1::renderMyNPC()
 	SDL_RenderCopyEx(renderer, myNPC->getTexture(), nullptr, &rect, degrees, nullptr, SDL_FLIP_NONE);
 }
 
+//Deep's and Lakshay's work overridden by Rut. 
+/*
 void Scene1::WallCollision(PlayerBody* player) {
 	// Get current player position and velocity
 	Vec3 playerPos = player->getPos();
@@ -590,10 +609,12 @@ void Scene1::WallCollision(KinematicBody* myNPC) {
 	myNPC->setPos(npcPos);
 	myNPC->setVel(npcVel);
 }
+*/
 void Scene1::HandleEvents(const SDL_Event& event)
 {
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
+	//when mouse clicked gtet the cordinatees of it
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		int mouseX = event.button.x;
 		int mouseY = event.button.y;
@@ -602,18 +623,22 @@ void Scene1::HandleEvents(const SDL_Event& event)
 		Vec3 worldPos = MMath::inverse(projectionMatrix) * Vec3(mouseX, mouseY, 0.0f);
 
 		// Determine the clicked tile based on world coordinates
+		//gails idea for getting the current tile
 		int tileX = static_cast<int>(worldPos.x / tileSize);
 		int tileY = static_cast<int>(worldPos.y / tileSize);
 
 		int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 		int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
+		//Checking if the player is in boundry
 		if (tileX >= 0 && tileX < cols && tileY >= 0 && tileY < rows) {
-
+			//Get the node using the tile row and column
 			Node* selectedNode = tiles[tileY][tileX]->getNode();
 
+			// Handle left and right mouse button clicks
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				// Handle left-click for pathfinding
 				Node* startNode = tiles[npcY][npcX]->getNode();
+				//Get the node using the tile row and column
 				highlightExploredTiles(startNode, selectedNode);
 			}
 			else if (event.button.button == SDL_BUTTON_RIGHT) {
@@ -627,6 +652,7 @@ void Scene1::HandleEvents(const SDL_Event& event)
 
 void Scene1::highlightExploredTiles(Node* startNode, Node* targetNode) {
 	// Clear previous highlights
+	//Manover over rows and columns of tiles
 	for (auto& row : tiles) {
 		for (auto& tile : row) {
 			tile->setExplored(false);
@@ -636,12 +662,12 @@ void Scene1::highlightExploredTiles(Node* startNode, Node* targetNode) {
 
 	std::vector<Node*> exploredNodes;
 	std::vector<Node*> path = graph->findPath(startNode, targetNode, exploredNodes);
-
+	//create a path for explored nodes
 	// Highlight explored tiles in orange
 	for (Node* node : exploredNodes) {
 		int label = node->getLabel();
-		int tileX = label % cols;
-		int tileY = label / cols;
+		int tileX = label % cols;//get the col u are in
+		int tileY = label / cols;//get the row u are in
 
 		tiles[tileY][tileX]->setExplored(true);  // Mark as explored for orange
 	}
@@ -667,8 +693,11 @@ void Scene1::addWallToGraph(int tileX, int tileY) {
 	// Mark the tile as a wall for rendering
 	tiles[tileY][tileX]->setWall(true);
 }
-
+ 
+//Overridden work
+/*
 const std::vector<Wall*>& Scene1::getWalls() const
 {
 	return walls;
 }
+*/

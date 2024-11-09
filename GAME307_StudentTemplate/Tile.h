@@ -12,6 +12,10 @@ private:
 	Vec3 pos;
 	Node* node;
 	Scene* scene;
+
+
+
+
 	bool explored = false;
 	bool isPath = false;
 	bool isWall = false;
@@ -26,9 +30,12 @@ private:
 
 public:
 
+	// Setters
 	void setExplored(bool value) { explored = value; }
 	void setPath(bool value) { isPath = value; }
 	void setWall(bool value) { isWall = value; }
+
+
 	Tile(Node* node_, Vec3 pos_, float width_, float height_, Scene* scene_);
 	virtual ~Tile() {}
 	void Render();
