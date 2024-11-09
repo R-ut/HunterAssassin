@@ -608,11 +608,19 @@ void Scene1::HandleEvents(const SDL_Event& event)
 		int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 		int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 		if (tileX >= 0 && tileX < cols && tileY >= 0 && tileY < rows) {
-			Node* targetNode = tiles[tileY][tileX]->getNode();
-			Node* startNode = tiles[npcY][npcX]->getNode();
 
-			// Find path and highlight explored nodes
-			highlightExploredTiles(startNode, targetNode);
+			Node* selectedNode = tiles[tileY][tileX]->getNode();
+
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				// Handle left-click for pathfinding
+				Node* startNode = tiles[npcY][npcX]->getNode();
+				highlightExploredTiles(startNode, selectedNode);
+			}
+			else if (event.button.button == SDL_BUTTON_RIGHT) {
+				// Handle right-click to create a wall
+				addWallToGraph(tileX, tileY);
+				std::cout << "Wall added at: " << tileX << ", " << tileY << std::endl;
+			}
 		}
 	}
 }
@@ -622,21 +630,44 @@ void Scene1::highlightExploredTiles(Node* startNode, Node* targetNode) {
 	for (auto& row : tiles) {
 		for (auto& tile : row) {
 			tile->setExplored(false);
+			tile->setPath(false);
 		}
 	}
 
-	// Run findPath and track explored nodes
-	std::vector<Node*> path = graph->findPath(startNode, targetNode);
+	std::vector<Node*> exploredNodes;
+	std::vector<Node*> path = graph->findPath(startNode, targetNode, exploredNodes);
 
-	// Highlight explored nodes by setting the tile to explored
+	// Highlight explored tiles in orange
+	for (Node* node : exploredNodes) {
+		int label = node->getLabel();
+		int tileX = label % cols;
+		int tileY = label / cols;
+
+		tiles[tileY][tileX]->setExplored(true);  // Mark as explored for orange
+	}
+
+	// Highlight final path tiles in red
 	for (Node* node : path) {
 		int label = node->getLabel();
 		int tileX = label % cols;
 		int tileY = label / cols;
 
-		tiles[tileY][tileX]->setExplored(true);
+		tiles[tileY][tileX]->setPath(true);  // Mark as path for red
 	}
 }
+void Scene1::addWallToGraph(int tileX, int tileY) {
+	Node* wallNode = tiles[tileY][tileX]->getNode();
+
+	// Remove connections to this node in the graph, making it a "wall"
+	for (Node* neighbor : graph->neighbours(wallNode)) {
+		graph->addWeightedConnection(wallNode, neighbor, 0.0f);  // No connection
+		graph->addWeightedConnection(neighbor, wallNode, 0.0f);  // No connection back
+	}
+
+	// Mark the tile as a wall for rendering
+	tiles[tileY][tileX]->setWall(true);
+}
+
 const std::vector<Wall*>& Scene1::getWalls() const
 {
 	return walls;

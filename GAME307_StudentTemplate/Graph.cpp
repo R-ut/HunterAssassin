@@ -82,7 +82,7 @@ float heuristic(Node* a, Node* b) {
     return std::abs(a->getLabel() - b->getLabel());
 }
 
-std::vector<Node*> Graph::findPath(Node* startNode, Node* goalNode)
+std::vector<Node*> Graph::findPath(Node* startNode, Node* goalNode, std::vector<Node*> &exploredNodes)
 {
     std::vector<Node*> result;
 
@@ -111,7 +111,7 @@ std::vector<Node*> Graph::findPath(Node* startNode, Node* goalNode)
         // Get the top node and save it in currentNode, then pop the node from the frontier
         currentNode = frontier.top().node;
         frontier.pop();
-
+        exploredNodes.push_back(currentNode);
         // If the goal is reached, break out
         if (currentNode == goalNode)
         {

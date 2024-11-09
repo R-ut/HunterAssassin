@@ -60,6 +60,7 @@ public:
 	void WallCollision(KinematicBody* myNPC);
 	void HandleEvents(const SDL_Event &event);
 	void highlightExploredTiles(Node* startNode, Node* targetNode);
+	void addWallToGraph(int tileX, int tileY);
 	const std::vector<Wall*>& getWalls() const;
 	float getxAxis() { return xAxis; }
 	float getyAxis() { return yAxis; }

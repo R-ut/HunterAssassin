@@ -30,14 +30,19 @@ void Tile::Render()
 		static_cast<int>(bottomRightScreen.x - topLeftScreen.x),
 		static_cast<int>(bottomRightScreen.y - topLeftScreen.y)
 	};
-
-	// Set color for explored tiles
-	if (explored) {
-		setRGBA(255, 0, 0, 255);  // Red for explored tiles
+	if (isWall) {
+		setRGBA(0, 0, 0, 255);
+	}
+	else if (isPath) {
+		setRGBA(255, 0, 0, 255);  // Red for path
+	}
+	else if (explored) {
+		setRGBA(255, 165, 0, 255);  // Orange for explored
 	}
 	else {
 		setRGBA(17, 138, 178, 255);  // Default color
 	}
+
 	SDL_SetRenderDrawColor(renderer, r, g, b, a);
 	SDL_RenderFillRect(renderer, &rect);
 
