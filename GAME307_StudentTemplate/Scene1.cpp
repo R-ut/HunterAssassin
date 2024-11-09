@@ -1,5 +1,7 @@
 #include "Scene1.h"
+#include <MMath.h>
 
+using namespace MATH;
 Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	window = sdlWindow_;
     game = game_;
@@ -239,6 +241,7 @@ enum class BehaviorState {
 BehaviorState currentState = BehaviorState::None;
 
 void Scene1::Update(const float deltaTime) {
+	/*
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
 	SteeringOutput* steering;
@@ -389,6 +392,7 @@ void Scene1::Update(const float deltaTime) {
 	if (myNPC) {
 		WallCollision(myNPC);
 	}
+	*/
 }
 
 void Scene1::Render() {
@@ -590,8 +594,49 @@ void Scene1::HandleEvents(const SDL_Event& event)
 {
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		int mouseX = event.button.x;
+		int mouseY = event.button.y;
+
+		// Convert mouse click to world coordinates
+		Vec3 worldPos = MMath::inverse(projectionMatrix) * Vec3(mouseX, mouseY, 0.0f);
+
+		// Determine the clicked tile based on world coordinates
+		int tileX = static_cast<int>(worldPos.x / tileSize);
+		int tileY = static_cast<int>(worldPos.y / tileSize);
+
+		int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
+		int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
+		if (tileX >= 0 && tileX < cols && tileY >= 0 && tileY < rows) {
+			Node* targetNode = tiles[tileY][tileX]->getNode();
+			Node* startNode = tiles[npcY][npcX]->getNode();
+
+			// Find path and highlight explored nodes
+			highlightExploredTiles(startNode, targetNode);
+		}
+	}
 }
 
+void Scene1::highlightExploredTiles(Node* startNode, Node* targetNode) {
+	// Clear previous highlights
+	for (auto& row : tiles) {
+		for (auto& tile : row) {
+			tile->setExplored(false);
+		}
+	}
+
+	// Run findPath and track explored nodes
+	std::vector<Node*> path = graph->findPath(startNode, targetNode);
+
+	// Highlight explored nodes by setting the tile to explored
+	for (Node* node : path) {
+		int label = node->getLabel();
+		int tileX = label % cols;
+		int tileY = label / cols;
+
+		tiles[tileY][tileX]->setExplored(true);
+	}
+}
 const std::vector<Wall*>& Scene1::getWalls() const
 {
 	return walls;

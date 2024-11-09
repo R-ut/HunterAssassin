@@ -12,6 +12,7 @@ private:
 	Vec3 pos;
 	Node* node;
 	Scene* scene;
+	bool explored = false;
 
 	void setRGBA(Uint8 r_, Uint8 g_, Uint8 b_, Uint8 a_)
 	{
@@ -22,6 +23,8 @@ private:
 	}
 
 public:
+
+	void setExplored(bool value) { explored = value; }
 	Tile(Node* node_, Vec3 pos_, float width_, float height_, Scene* scene_);
 	virtual ~Tile() {}
 	void Render();
