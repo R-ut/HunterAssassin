@@ -26,5 +26,6 @@ public:
 	virtual ~Tile() {}
 	void Render();
 	Node* getNode() { return node; }
+	Vec3 getPos() { return pos; }
 };
 #endif

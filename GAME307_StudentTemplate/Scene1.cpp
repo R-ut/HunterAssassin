@@ -239,15 +239,6 @@ enum class BehaviorState {
 BehaviorState currentState = BehaviorState::None;
 
 void Scene1::Update(const float deltaTime) {
-
-
-
-
-
-
-
-
-
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
 	SteeringOutput* steering;

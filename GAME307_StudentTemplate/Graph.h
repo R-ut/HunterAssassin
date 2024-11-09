@@ -22,7 +22,7 @@ private:
 public:
 	Graph();
 	~Graph();
-	bool OnCreate(std::vector< Node* > nodes_);
+	bool OnCreate(std::vector<Node*> nodes_);
 	int numNodes();
 	Node* getNode(int label) { return nodes[label]; }
 	void addWeightedConnection(Node* fromNode, Node* toNode, float weight);
