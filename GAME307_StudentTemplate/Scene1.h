@@ -56,11 +56,11 @@ public:
 	void Update(const float time);
 	void Render();
 	//overridden work 
-	/*
+	
 	const std::vector<Wall*>& getWalls() const;
 	void WallCollision(PlayerBody* player);
 	void WallCollision(KinematicBody* myNPC);
-	*/
+	
 	void HandleEvents(const SDL_Event &event);
 	//Highlight the explored tiles as well as the path tiles
 	void highlightExploredTiles(Node* startNode, Node* targetNode);

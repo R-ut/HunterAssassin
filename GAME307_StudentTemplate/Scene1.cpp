@@ -42,7 +42,7 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 	//Lakshay's and deep's code , Rut had commented that out for his work. Sorry.
-	/*
+	
 	// Define wall size and scale it to make sure it's visible
 	float wallWidth = 1.0f;  // Increased width to make it more visible
 	float wallHeight = 1.0f;  // Increased height to make it more visible
@@ -78,7 +78,7 @@ bool Scene1::OnCreate() {
 	for (float x = 24.5f; x >= 8.5f; x -= 0.5f) {
 		walls.push_back(new Wall(Vec3(x, 12.0f, 0.0f), wallWidth, wallHeight, renderer));
 	}
-	*/
+	
 	// Set player image to PacMan
 	SDL_Surface* image;
 	SDL_Texture* texture;
@@ -235,16 +235,16 @@ void Scene1::OnDestroy()
 	}
 
 
-	/*// Clean up walls
+	// Clean up walls
 	for (Wall* wall : walls) {
 		delete wall;
 	}
 	walls.clear();
-	*/
+	
 }
 //Creating the enum class to visually Compare between different kind of steering.
 //Steering behaviours
-/*enum class BehaviorState {
+enum class BehaviorState {
 	Pursuing,
 	Evading,
 	Arriving,
@@ -253,10 +253,10 @@ void Scene1::OnDestroy()
 };
 // Initializing current state which is set to NONE for now.
 BehaviorState currentState = BehaviorState::None;
-*/
+
 
 void Scene1::Update(const float deltaTime) {
-	/*
+	
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
 	SteeringOutput* steering;
@@ -273,7 +273,7 @@ void Scene1::Update(const float deltaTime) {
 
 		if (playerSpeed > 0.1f) {
 			newState = BehaviorState::Pursuing;
-			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 20.0f);// Max Prediction of 0.5
+			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 20.0f);// Max Prediction of 20.0f
 			steering = pursuer->getSteering();
 
 		}
@@ -381,20 +381,20 @@ void Scene1::Update(const float deltaTime) {
 	SDL_FreeSurface(collisionImage);
 
 	if (pointDistance1 < collisionDistance) {
-		std::cout << "Collision Detected!!!" << std::endl;
+		/*std::cout << "Collision Detected!!!" << std::endl;*/
 
 		myNPC->setTexture(collisionTexture);// Changing myNPC texture when collided.
 
 		// Calculating Direction myNPC needs to go after Collision
+
 		Vec3 New_direction = VMath::normalize(myNPC->getPos() - game->getPlayer()->getPos());
 
 		// Move myNPC to a new position to prevent overlaping.
 		Vec3 New_Position = myNPC->getPos() + New_direction * (collisionDistance - pointDistance1);
 		myNPC->setPos(New_Position);
 
-		// Calculating new velocity to make npc bounce back.
-		Vec3 New_Velocity = New_direction * VMath::mag(myNPC->getVel());
-		myNPC->setVel(New_Velocity);
+		//Setting myNPC velocity in new direction
+		myNPC->setVel(New_direction);
 	}
 	// Calling player from PlayerBody Class and then verifying if it retrieve from game->getplayer()
 	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
@@ -407,7 +407,7 @@ void Scene1::Update(const float deltaTime) {
 	if (myNPC) {
 		WallCollision(myNPC);
 	}
-	*/
+	
 }
 
 void Scene1::Render() {
@@ -425,19 +425,19 @@ void Scene1::Render() {
 	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
 
 	//Rut overrode this work
-	 /*
+	 
 	// Render walls
 	for (Wall* wall : walls) {
 		wall->Render(projectionMatrix);
 	}
-	*/
+	
 
 	// render any npc's
-	Enemy1->render(5.15f);
+	//Enemy1->render(5.15f);
 	//Rendering tiles
 	for (int i = 0; tiles.size() > i; i++) {
 		for (int j = 0; tiles[i].size() > j; j++) {
-				tiles[i][j]->Render();
+				//tiles[i][j]->Render();
 		}
 	}
 	renderMyNPC();
@@ -469,8 +469,6 @@ void Scene1::renderMyNPC()
 	SDL_RenderCopyEx(renderer, myNPC->getTexture(), nullptr, &rect, degrees, nullptr, SDL_FLIP_NONE);
 }
 
-//Deep's and Lakshay's work overridden by Rut. 
-/*
 void Scene1::WallCollision(PlayerBody* player) {
 	// Get current player position and velocity
 	Vec3 playerPos = player->getPos();
@@ -503,14 +501,11 @@ void Scene1::WallCollision(PlayerBody* player) {
 			// Resolve x-axis collision with gradual adjustment
 			if (overlapLeft < overlapRight) {
 				playerPos.x -= std::min(overlapLeft, SmoothMovementValue);  // The side with the smaller overlap is corrected first
-				// velocity on the x-axis is reduced (multiplied by 0.5f) to make it feel more natural
-				if (playerVel.x > 0) playerVel.x *= 0.5f; 
-				std::cout << "PLAYER Left Collided!!" << std::endl;
+				/*std::cout << "PLAYER Left Collided!!" << std::endl;*/
 			}
 			else {
-				playerPos.x += std::min(overlapRight, SmoothMovementValue);  
-				if (playerVel.x < 0) playerVel.x *= 0.5f;  
-				std::cout << "PLAYER Right Collided!!" << std::endl;
+				playerPos.x += std::min(overlapRight, SmoothMovementValue);   
+				/*std::cout << "PLAYER Right Collided!!" << std::endl;*/
 			}
 		}
 
@@ -527,20 +522,17 @@ void Scene1::WallCollision(PlayerBody* player) {
 			// Resolve y-axis collision with gradual adjustment
 			if (overlapTop < overlapBottom) {
 				playerPos.y -= std::min(overlapTop, SmoothMovementValue); 
-				if (playerVel.y > 0) playerVel.y *= 0.5f;  
-				std::cout << "PLAYER Top Collided!!" << std::endl;
+				/*std::cout << "PLAYER Top Collided!!" << std::endl;*/
 			}
 			else {
 				playerPos.y += std::min(overlapBottom, SmoothMovementValue);  
-				if (playerVel.y < 0) playerVel.y *= 0.5f; 
-				std::cout << "PLAYER Bottom Collided!!" << std::endl;
+				/*std::cout << "PLAYER Bottom Collided!!" << std::endl;*/
 			}
 		}
 	}
 
-	// Set updated position and velocity back to the player
+	// Set updated position back to the player
 	player->setPos(playerPos);
-	player->setVel(playerVel);
 }
 
 // Setting Wall Collison for NPC
@@ -573,13 +565,11 @@ void Scene1::WallCollision(KinematicBody* myNPC) {
 			// Resolve x-axis collision with gradual adjustment
 			if (overlapLeft < overlapRight) {
 				npcPos.x -= std::min(overlapLeft, SmoothMovementValue);
-				if (npcVel.x > 0) npcVel.x *= 0.5f;
-				std::cout << "NPC Left Collided!!" << std::endl;
+				/*std::cout << "NPC Left Collided!!" << std::endl;*/
 			}
 			else {
 				npcPos.x += std::min(overlapRight, SmoothMovementValue);
-				if (npcVel.x < 0) npcVel.x *= 0.5f;
-				std::cout << "NPC Right Collided!!" << std::endl;
+				/*std::cout << "NPC Right Collided!!" << std::endl;*/
 			}
 		}
 
@@ -594,13 +584,11 @@ void Scene1::WallCollision(KinematicBody* myNPC) {
 			// Resolve y-axis collision with gradual adjustment
 			if (overlapTop < overlapBottom) {
 				npcPos.y -= std::min(overlapTop, SmoothMovementValue);
-				if (npcVel.y > 0) npcVel.y *= 0.5f;
-				std::cout << "NPC Top Collided!!" << std::endl;
+				/*std::cout << "NPC Top Collided!!" << std::endl;*/
 			}
 			else {
 				npcPos.y += std::min(overlapBottom, SmoothMovementValue);
-				if (npcVel.y < 0) npcVel.y *= 0.5f;
-				std::cout << "NPC Bottom Collided!!" << std::endl;
+				/*std::cout << "NPC Bottom Collided!!" << std::endl;*/
 			}
 		}
 	}
@@ -609,7 +597,7 @@ void Scene1::WallCollision(KinematicBody* myNPC) {
 	myNPC->setPos(npcPos);
 	myNPC->setVel(npcVel);
 }
-*/
+
 void Scene1::HandleEvents(const SDL_Event& event)
 {
 	// send events to player as needed
