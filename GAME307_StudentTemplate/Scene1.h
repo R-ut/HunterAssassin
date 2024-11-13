@@ -21,6 +21,7 @@
 using namespace MATH;
 class Scene1 : public Scene {
 private:
+	
 	SDL_Window *window;
 	float xAxis = 25.0f;
 	float yAxis = 15.0f;

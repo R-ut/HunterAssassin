@@ -1,6 +1,6 @@
 #include "Pursue.h"
 
-Pursue::Pursue(const Body* npc_, const Body* target_, float maxPrediction_)
+Pursue::Pursue(const Body* npc_, Vec3 target_, float maxPrediction_)
     : Seek(npc_, target_), maxPrediction(maxPrediction_)
 {
 }
@@ -9,7 +9,7 @@ Pursue::~Pursue() {}
 
 SteeringOutput* Pursue::getSteering()
 {
-    Vec3 direction = target->getPos() - npc->getPos();
+    Vec3 direction = target - npc->getPos();
 
     // Calculate the distance to the target by taking it's magnitude or length for each direction
     float distance = VMath::mag(direction);
@@ -28,7 +28,7 @@ SteeringOutput* Pursue::getSteering()
     }
 
     // Predict the future position of the target
-    Vec3 futurePosition = target->getPos() + target->getVel() * prediction;
+    Vec3 futurePosition = target + target * prediction;
 
     // Implemneting the Seek Code to acellerate it in that direction.
     result->linear = VMath::normalize(futurePosition - npc->getPos()) * npc->getMaxAcceleration();

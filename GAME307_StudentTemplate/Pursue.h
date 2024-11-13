@@ -8,7 +8,7 @@ private:
     float maxPrediction;  // Maximum prediction time for pursue behavior
 
 public:
-    Pursue(const Body* npc_, const Body* target_, float maxPrediction_);
+    Pursue(const Body* npc_, Vec3 target_, float maxPrediction_);
     ~Pursue();
 
     //steering behavior to add prediction logic

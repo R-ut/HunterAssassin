@@ -20,8 +20,8 @@ public:
 		float orientation_ = 0.0f,
 		float rotation_ = 0.0f,
 		float angular_ = 0.0f,
-		float maxSpeed_ =5.0f,
-		float maxAcceleration_ = 5.0f,
+		float maxSpeed_ =0.5f,
+		float maxAcceleration_ = 0.5f,
 		float maxRotation_ = 1.0f,
 		float maxAngular_ = 1.0f
 	) : Body{ pos_, vel_, accel_, mass_

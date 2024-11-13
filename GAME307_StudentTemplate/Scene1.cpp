@@ -259,78 +259,29 @@ void Scene1::Update(const float deltaTime) {
 	
 	// Calculate and apply any steering for npc's
 	Enemy1->Update(deltaTime);
-	SteeringOutput* steering;
-	float distance = VMath::mag(game->getPlayer()->getPos() - myNPC->getPos());
-	BehaviorState newState = currentState;
+	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
+	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
+	Node* startNode = tiles[npcY][npcX]->getNode();
 
-	//Create a seek steering if the player is more than 2 units away
-	//else create a flee steering
-	if (distance < game->getPlayer()->getRadius() * 4) {
+	int playerX = static_cast<int>(game->getPlayer()->getPos().x / tileSize);
+	int playerY = static_cast<int>(game->getPlayer()->getPos().y / tileSize);
 
-		// Calculate the player's velocity
-		Vec3 playerVelocity = game->getPlayer()->getVel();
-		float playerSpeed = VMath::mag(playerVelocity);
+	Node* targetNode = tiles[playerY][playerX]->getNode();
+	std::vector<Node*> exploredNodes;
 
-		if (playerSpeed > 0.1f) {
-			newState = BehaviorState::Pursuing;
-			Pursue* pursuer = new Pursue(myNPC, game->getPlayer(), 20.0f);// Max Prediction of 20.0f
-			steering = pursuer->getSteering();
+	std::vector<Node*> path = graph->findPath(startNode, targetNode, exploredNodes);
+	for (Node* node : path) {
+		int label = node->getLabel();
+		int tileX = label % cols;
+		int tileY = label / cols;
 
-		}
-		else {
-			newState = BehaviorState::Arriving;
-			Arrive* Arriver;
-			Arriver = new Arrive(myNPC, game->getPlayer());
-			steering = Arriver->getSteering();
-
-		}
+		tiles[tileY][tileX]->setPath(true);
+		Vec3 nodePos = tiles[tileY][tileX]->getPos();
+		SteeringOutput* steering;
+		Seek* seeker = new Seek(myNPC, nodePos);
+		steering = seeker->getSteering();
+		myNPC->Update(deltaTime, steering);
 	}
-	else {
-		if (distance > game->getPlayer()->getRadius() * 8) {
-			newState = BehaviorState::Seeking;
-			Seek* Seeker;
-			Seeker = new Seek(myNPC, game->getPlayer());
-			steering = Seeker->getSteering();
-		}
-
-		else {
-		newState = BehaviorState::Evading;
-		// Player is in the middle distance, evade them
-		Evade* evader = new Evade(myNPC, game->getPlayer(), 20.0f);  // Max prediction of 1.0
-		steering = evader->getSteering();
-
-	}
-	}
-	// Setting the enum State with messages.
-	if (newState != currentState) {
-		switch (newState) {
-		case BehaviorState::Pursuing:
-			std::cout << "Pursuing" << std::endl;
-			break;
-		case BehaviorState::Evading:
-			std::cout << "Evading" << std::endl;
-			break;
-		case BehaviorState::Arriving:
-			std::cout << "Arriving" << std::endl;
-			break;
-		case BehaviorState::Seeking:
-			std::cout << "Seeking" << std::endl;
-			break;
-		default:
-			break;
-		}
-
-		// Update the current state to the new state as myNPC steers.
-		currentState = newState;
-	}
-	
-	if (!steering)
-	{
-		myNPC->setVel(Vec3(0.0f, 0.0f, 0.0f));
-	}
-	
-	myNPC->Update(deltaTime, steering);
-
 	// Calling the methods below
 	float radius = myNPC->getRadius();
 	Vec3 position = myNPC->getPos();
@@ -425,7 +376,12 @@ void Scene1::Render() {
 	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
 
 	//Rut overrode this work
-	 
+	 //Rendering tiles
+	for (int i = 0; tiles.size() > i; i++) {
+		for (int j = 0; tiles[i].size() > j; j++) {
+				tiles[i][j]->Render();
+		}
+	}
 	// Render walls
 	for (Wall* wall : walls) {
 		wall->Render(projectionMatrix);
@@ -434,12 +390,7 @@ void Scene1::Render() {
 
 	// render any npc's
 	//Enemy1->render(5.15f);
-	//Rendering tiles
-	for (int i = 0; tiles.size() > i; i++) {
-		for (int j = 0; tiles[i].size() > j; j++) {
-				//tiles[i][j]->Render();
-		}
-	}
+	
 	renderMyNPC();
 	// render the player
 	game->RenderPlayer(5.10f);
