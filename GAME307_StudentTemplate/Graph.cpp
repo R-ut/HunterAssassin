@@ -80,6 +80,8 @@ struct NodeAndPriority
 float heuristic(Node* a, Node* b) {
     // Since there is no positional data, using the label difference as a simple heuristic
     return std::abs(a->getLabel() - b->getLabel());
+    //hint: label/cols;
+    //hint: label / rows;
 }
 
 std::vector<Node*> Graph::findPath(Node* startNode, Node* goalNode, std::vector<Node*> &exploredNodes)
