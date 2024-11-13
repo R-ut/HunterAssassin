@@ -44,8 +44,8 @@ bool Scene1::OnCreate() {
 	//Lakshay's and deep's code , Rut had commented that out for his work. Sorry.
 	
 	// Define wall size and scale it to make sure it's visible
-	float wallWidth = 1.0f;  // Increased width to make it more visible
-	float wallHeight = 1.0f;  // Increased height to make it more visible
+	float wallWidth = 1.57f;  // Increased width to make it more visible
+	float wallHeight = 1.57f;  // Increased height to make it more visible
 
 
 	// Position walls using values that keep them within the screen boundaries
