@@ -49,25 +49,6 @@ bool Scene1::OnCreate() {
 
 
 	// Position walls using values that keep them within the screen boundaries
-	// Top boundary along y = 0.5f from x = 0.0f to x = 25.0f
-	for (float x = 0.0f; x <= 25.0f; x += 0.5f) {
-		walls.push_back(new Wall(Vec3(x, 0.5f, 0.0f), wallWidth, wallHeight, renderer));
-	}
-
-	// Bottom boundary along y = 15.0f from x = 0.0f to x = 25.0f
-	for (float x = 0.0f; x <= 25.0f; x += 0.5f) {
-		walls.push_back(new Wall(Vec3(x, 15.0f, 0.0f), wallWidth, wallHeight, renderer));
-	}
-
-	// Left boundary along x = 0.0f from y = 0.5f to y = 15.0f
-	for (float y = 0.5f; y <= 15.0f; y += 0.5f) {
-		walls.push_back(new Wall(Vec3(0.0f, y, 0.0f), wallWidth, wallHeight, renderer));
-	}
-
-	// Right boundary along x = 24.5f from y = 0.5f to y = 15.0f
-	for (float y = 0.5f; y <= 15.0f; y += 0.5f) {
-		walls.push_back(new Wall(Vec3(24.5f, y, 0.0f), wallWidth, wallHeight, renderer));
-	}
 
     // Horizontal wall segment along y = 8.0f from x = 0.0f to x = 10.5f
 	for (float x = 0.0f; x <= 10.5f; x += 0.5f) {
@@ -87,7 +68,6 @@ bool Scene1::OnCreate() {
 	texture = SDL_CreateTextureFromSurface(renderer, image);
 	game->getPlayer()->setImage(image);
 	game->getPlayer()->setTexture(texture);
-	//game->getPlayer()->setPos(Vec3(0.0f, 0.0f, 0.0f));
 
 	// Set up myNPC kinematic character
 	Vec3 position = Vec3(5.0f, 3.0f, 0.0f);
@@ -322,41 +302,16 @@ void Scene1::Update(const float deltaTime) {
 	// Update player
 	game->getPlayer()->Update(deltaTime);
 
-	float collisionDistance = 1.0f;  // Collison Detection Distance so Characters don't overlap.
-	float pointDistance1 = VMath::mag(game->getPlayer()->getPos() - myNPC->getPos());
-
-	SDL_Surface* collisionImage = IMG_Load("Inky.png");
-	SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
-
-	// Free the collision image surface after creating the texture
-	SDL_FreeSurface(collisionImage);
-
-	if (pointDistance1 < collisionDistance) {
-		/*std::cout << "Collision Detected!!!" << std::endl;*/
-
-		myNPC->setTexture(collisionTexture);// Changing myNPC texture when collided.
-
-		// Calculating Direction myNPC needs to go after Collision
-
-		Vec3 New_direction = VMath::normalize(myNPC->getPos() - game->getPlayer()->getPos());
-
-		// Move myNPC to a new position to prevent overlaping.
-		Vec3 New_Position = myNPC->getPos() + New_direction * (collisionDistance - pointDistance1);
-		myNPC->setPos(New_Position);
-
-		//Setting myNPC velocity in new direction
-		myNPC->setVel(New_direction);
-	}
-	// Calling player from PlayerBody Class and then verifying if it retrieve from game->getplayer()
+	// Handle player-wall collision && NPC-Player collision
 	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
-	if (player) {
-
-		WallCollision(player);
+	if (player != nullptr) { // Ensure player is not null
+		collisionAvoidance.HandlePlayerWallCollision(player, walls);
+		collisionAvoidance.HandlePlayerNPCollision(player, myNPC, renderer);
 	}
 
-	// Calling wallCollisonNPC function 
-	if (myNPC) {
-		WallCollision(myNPC);
+	// Handle NPC-wall collision
+	if (myNPC != nullptr) { // Ensure myNPC is not null
+		collisionAvoidance.HandleNPCWallCollision(myNPC, walls);
 	}
 	
 }
@@ -418,135 +373,6 @@ void Scene1::renderMyNPC()
 	float degrees = orientation * 180.0f / M_PI;
 
 	SDL_RenderCopyEx(renderer, myNPC->getTexture(), nullptr, &rect, degrees, nullptr, SDL_FLIP_NONE);
-}
-
-void Scene1::WallCollision(PlayerBody* player) {
-	// Get current player position and velocity
-	Vec3 playerPos = player->getPos();
-	Vec3 playerVel = player->getVel();
-	float playerWidth = 1.0f;  // Player width
-	float playerHeight = 1.0f; // Player height
-
-	// To avoid player teleport when collison occurs.
-	float SmoothMovementValue = 0.05f;
-
-	// Loop through all walls to check collisions
-	for (const Wall* wall : walls) {
-		// Get wall boundaries
-		float wallLeft = wall->getPosition().x;
-		float wallRight = wallLeft + wall->getWidth();
-		float wallTop = wall->getPosition().y;
-		float wallBottom = wallTop + wall->getHeight();
-
-		// Check collision on the x-axis
-		// Checks if the player's x-axis overlaps with the wall's x-axis while also checking the overlap on the y-axis.
-		if (playerPos.x + playerWidth > wallLeft && playerPos.x < wallRight &&
-			playerPos.y + playerHeight > wallTop && playerPos.y < wallBottom) {
-
-			// Determine the overlap amount for x-axis
-			// Amount of overlap if the player is on the left side of the wall.
-			float overlapLeft = (playerPos.x + playerWidth) - wallLeft;
-			//  Amount of overlap if the player is on the right side of the wall.
-			float overlapRight = wallRight - playerPos.x;
-
-			// Resolve x-axis collision with gradual adjustment
-			if (overlapLeft < overlapRight) {
-				playerPos.x -= std::min(overlapLeft, SmoothMovementValue);  // The side with the smaller overlap is corrected first
-				/*std::cout << "PLAYER Left Collided!!" << std::endl;*/
-			}
-			else {
-				playerPos.x += std::min(overlapRight, SmoothMovementValue);   
-				/*std::cout << "PLAYER Right Collided!!" << std::endl;*/
-			}
-		}
-
-		// Check collision on the y-axis
-		if (playerPos.x + playerWidth > wallLeft && playerPos.x < wallRight &&
-			playerPos.y + playerHeight > wallTop && playerPos.y < wallBottom) {
-
-			// Determine the overlap amount for y-axis
-			// Amount of overlap if the player is above the wall.
-			float overlapTop = (playerPos.y + playerHeight) - wallTop;
-			// Amount of overlap if the player is below the wall.
-			float overlapBottom = wallBottom - playerPos.y;
-
-			// Resolve y-axis collision with gradual adjustment
-			if (overlapTop < overlapBottom) {
-				playerPos.y -= std::min(overlapTop, SmoothMovementValue); 
-				/*std::cout << "PLAYER Top Collided!!" << std::endl;*/
-			}
-			else {
-				playerPos.y += std::min(overlapBottom, SmoothMovementValue);  
-				/*std::cout << "PLAYER Bottom Collided!!" << std::endl;*/
-			}
-		}
-	}
-
-	// Set updated position back to the player
-	player->setPos(playerPos);
-}
-
-// Setting Wall Collison for NPC
-void Scene1::WallCollision(KinematicBody* myNPC) {
-	// Get current NPC position and velocity
-	Vec3 npcPos = myNPC->getPos();
-	Vec3 npcVel = myNPC->getVel();
-	float npcWidth = 1.0f;  // NPC width
-	float npcHeight = 1.0f; // NPC height
-
-	// To avoid NPC teleport when collision occurs.
-	float SmoothMovementValue = 0.05f;
-
-	// Loop through all walls to check collisions
-	for (const Wall* wall : walls) {
-		// Get wall boundaries
-		float wallLeft = wall->getPosition().x;
-		float wallRight = wallLeft + wall->getWidth();
-		float wallTop = wall->getPosition().y;
-		float wallBottom = wallTop + wall->getHeight();
-
-		// Check collision on the x-axis
-		if (npcPos.x + npcWidth > wallLeft && npcPos.x < wallRight &&
-			npcPos.y + npcHeight > wallTop && npcPos.y < wallBottom) {
-
-			// Determine the overlap amount for x-axis
-			float overlapLeft = (npcPos.x + npcWidth) - wallLeft;
-			float overlapRight = wallRight - npcPos.x;
-
-			// Resolve x-axis collision with gradual adjustment
-			if (overlapLeft < overlapRight) {
-				npcPos.x -= std::min(overlapLeft, SmoothMovementValue);
-				/*std::cout << "NPC Left Collided!!" << std::endl;*/
-			}
-			else {
-				npcPos.x += std::min(overlapRight, SmoothMovementValue);
-				/*std::cout << "NPC Right Collided!!" << std::endl;*/
-			}
-		}
-
-		// Check collision on the y-axis
-		if (npcPos.x + npcWidth > wallLeft && npcPos.x < wallRight &&
-			npcPos.y + npcHeight > wallTop && npcPos.y < wallBottom) {
-
-			// Determine the overlap amount for y-axis
-			float overlapTop = (npcPos.y + npcHeight) - wallTop;
-			float overlapBottom = wallBottom - npcPos.y;
-
-			// Resolve y-axis collision with gradual adjustment
-			if (overlapTop < overlapBottom) {
-				npcPos.y -= std::min(overlapTop, SmoothMovementValue);
-				/*std::cout << "NPC Top Collided!!" << std::endl;*/
-			}
-			else {
-				npcPos.y += std::min(overlapBottom, SmoothMovementValue);
-				/*std::cout << "NPC Bottom Collided!!" << std::endl;*/
-			}
-		}
-	}
-
-	// Set updated position and velocity back to the NPC
-	myNPC->setPos(npcPos);
-	myNPC->setVel(npcVel);
 }
 
 void Scene1::HandleEvents(const SDL_Event& event)

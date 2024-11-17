@@ -16,6 +16,7 @@
 #include "Graph.h"
 #include "Node.h"
 #include "Tile.h"
+#include "CollisionAvoidance.h"
 
 
 using namespace MATH;
@@ -35,6 +36,7 @@ private:
 	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
 	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
 
+	CollisionAvoidance collisionAvoidance;
 
 	KinematicBody* myNPC;
 	Character* Enemy1;
