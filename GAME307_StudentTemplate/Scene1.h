@@ -42,6 +42,8 @@ private:
 	Character* Enemy1;
 	Character* Enemy2;
 
+	Vec3 cameraOffset;
+
 	Graph* graph;
 	std::vector<Node*> sceneNodes;
 

@@ -1,6 +1,7 @@
 #include "Scene1.h"
 #include <MMath.h>
-
+#include "PlayerBody.h"
+#include "GameManager.h"
 using namespace MATH;
 Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	window = sdlWindow_;
@@ -8,6 +9,7 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	renderer = SDL_GetRenderer(window);
 	xAxis = 25.0f;
 	yAxis = 15.0f;
+	cameraOffset = Vec3(0.0f, 0.0f, 0.0f);
 	// create a NPC
 	myNPC = NULL;
 	Enemy1 = nullptr;
@@ -255,6 +257,15 @@ BehaviorState currentState = BehaviorState::None;
 
 void Scene1::Update(const float deltaTime) {
 
+	// Update camera offset to follow the player
+	Vec3 playerPos = game->getPlayer()->getPos();
+	cameraOffset.x = playerPos.x - (xAxis / 2.0f);
+	cameraOffset.y = playerPos.y - (yAxis / 2.0f);
+
+	// Clamp camera offset within bounds
+	cameraOffset.x = std::max(0.0f, std::min(cameraOffset.x, xAxis - xAxis / 2.0f));
+	cameraOffset.y = std::max(0.0f, std::min(cameraOffset.y, yAxis - yAxis / 2.0f));
+
 	// Calculate and apply any steering for npc's
 	//Enemy1->Update(deltaTime);
 	Enemy2->Update(deltaTime);
@@ -394,36 +405,34 @@ void Scene1::Update(const float deltaTime) {
 
 	
 void Scene1::Render() {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
 	// Render the background
 	SDL_Rect bgRect;
-	bgRect.x = 0;
-	bgRect.y = 0;
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-	bgRect.w = w;
-	bgRect.h = h;
+	bgRect.x = static_cast<int>(-cameraOffset.x);
+	bgRect.y = static_cast<int>(-cameraOffset.y);
+	bgRect.w = static_cast<int>(xAxis);
+	bgRect.h = static_cast<int>(yAxis);
 	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
 
 	//Rut overrode this work
 	 //Rendering tiles
 	for (int i = 0; tiles.size() > i; i++) {
 		for (int j = 0; tiles[i].size() > j; j++) {
-				tiles[i][j]->Render();
+				tiles[i][j]->Render(cameraOffset);
 		}
 	}
 	// Render walls
 	for (Wall* wall : walls) {
-		wall->Render(projectionMatrix);
+		wall->Render(projectionMatrix, cameraOffset);
 	}
 	
 
-	// render any npc's
-	Enemy1->render(5.15f);
+	// Render NPCs
+	if (Enemy1) Enemy1->render(cameraOffset);
+	if (Enemy2) Enemy2->render(cameraOffset);
 
-	Enemy2->render(0.15f);
 	
 	renderMyNPC();
 	// render the player

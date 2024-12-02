@@ -8,18 +8,21 @@ Tile::Tile(Node* node_, Vec3 pos_, float width_, float height_, Scene* scene_) :
 {
 }
 
-void Tile::Render()
+void Tile::Render(const Vec3& cameraOffset)
 {
 	SDL_Renderer* renderer = scene->game->getRenderer();
 	Matrix4 projectionMatrix = scene->getProjectionMatrix();
 
 	SDL_Rect rect;
 
+	// Adjust the position of the tile by subtracting the camera offset
+	Vec3 adjustedPos = pos - cameraOffset;
+
 	Vec3 topLeft, bottomRight;
 	Vec3 topLeftScreen, bottomRightScreen;
 
-	topLeft = Vec3(pos.x - 0.5 * width, pos.y + 0.5 * height, 0.0f);
-	bottomRight = Vec3(pos.x + 0.5 * width, pos.y - 0.5 * height, 0.0f);
+	topLeft = Vec3(adjustedPos.x - 0.5 * width, adjustedPos.y + 0.5 * height, 0.0f);
+	bottomRight = Vec3(adjustedPos.x + 0.5 * width, adjustedPos.y - 0.5 * height, 0.0f);
 
 	topLeftScreen = projectionMatrix * topLeft;
 	bottomRightScreen = projectionMatrix * bottomRight;

@@ -14,9 +14,11 @@ Wall::Wall(Vec3 pos, float w, float h, SDL_Renderer* renderer_)
     }
 }
 
-void Wall::Render(const Matrix4& projectionMatrix) {
+void Wall::Render(const Matrix4& projectionMatrix, const Vec3& cameraOffset) {
+    // Adjust the wall position by subtracting the camera offset
+    Vec3 adjustedPos = position - cameraOffset;
     // Project wall position using the projection matrix
-    Vec3 screenCoords = projectionMatrix * position;
+    Vec3 screenCoords = projectionMatrix * adjustedPos;
     // Define the rectangle for rendering with increased scaling for visibility
     SDL_Rect wallRect = {
         static_cast<int>(screenCoords.x),

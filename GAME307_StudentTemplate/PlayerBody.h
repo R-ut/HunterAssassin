@@ -10,7 +10,9 @@
 
 #include <stdio.h>
 #include "Body.h"
-#include "GameManager.h"
+
+// Forward declaration of GameManager to avoid cyclic dependencies
+class GameManager;
 
 class PlayerBody : public Body
 {

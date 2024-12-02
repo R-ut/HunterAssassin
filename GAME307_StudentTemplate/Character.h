@@ -44,7 +44,7 @@ public:
 	bool setTextureWith(string file);
 	void Update(float time);
 	void HandleEvents(const SDL_Event& event);
-	void render(float scale = 1.0f) const;
+	void render(const Vec3& cameraOffset, float scale = 1.0f) const;
 	bool readDecisionTreeFromFile(string file_);
 	Vec3 getPos() const { return body->getPos(); }
 	Vec3 getPlayerPos() const { return scene->game->getPlayer()->getPos(); }

@@ -158,7 +158,7 @@ void Character::HandleEvents(const SDL_Event& event)
 	// handle events here, if needed
 }
 
-void Character::render(float scale) const
+void Character::render(const Vec3& cameraOffset, float scale) const
 {
 	SDL_Renderer* renderer = scene->game->getRenderer();
 	Matrix4 projectionMatrix = scene->getProjectionMatrix();
@@ -167,11 +167,14 @@ void Character::render(float scale) const
 	Vec3 screenCoords;
 	int    w, h;
 
+	// Adjust position by subtracting the camera offset
+	Vec3 adjustedPos = body->getPos() - cameraOffset;
+
 	// notice use of "body" in the following
 	SDL_QueryTexture(body->getTexture(), nullptr, nullptr, &w, &h);
 	w = static_cast<int>(w * scale);
 	h = static_cast<int>(h * scale);
-	screenCoords = projectionMatrix * body->getPos();
+	screenCoords = projectionMatrix * adjustedPos;
 	square.x = static_cast<int>(screenCoords.x - 0.5f * w);
 	square.y = static_cast<int>(screenCoords.y - 0.5f * h);
 	square.w = w;

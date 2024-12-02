@@ -6,7 +6,7 @@
 //
 
 #include "PlayerBody.h"
-
+#include "GameManager.h"
 bool PlayerBody::OnCreate()
 {
     image = IMG_Load( "Pacman.png" );

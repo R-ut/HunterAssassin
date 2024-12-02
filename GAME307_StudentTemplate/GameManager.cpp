@@ -1,6 +1,6 @@
 #include "GameManager.h"
 #include "Scene1.h"
-
+#include "PlayerBody.h"
 GameManager::GameManager() {
 	windowPtr = nullptr;
 	timer = nullptr;

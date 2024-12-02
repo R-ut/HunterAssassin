@@ -6,7 +6,10 @@
 #include "Timer.h"
 #include "Scene.h"
 #include "PlayerBody.h"
+#include "Body.h"
 
+// Forward declaration of PlayerBody
+class PlayerBody;
 
 class GameManager {
 private:
@@ -23,10 +26,10 @@ private:
 	class Timer *timer;
 	bool isRunning;
 	class Scene *currentScene;
-    class PlayerBody *player;
+    class PlayerBody* player;
     Uint32 changeSceneEventType; // event type number for user defined events
     bool launched = true;
-
+	
 	void LoadScene(int i);
 	bool ValidateCurrentScene();
 
@@ -45,7 +48,7 @@ public:
 	void RenderPlayer(float scale = 1.0f);
 	void Run();
     void handleEvents();
-    
+	Vec3 getPlayerPosition() const { return player->getPos(); }
 };
 #endif
 
