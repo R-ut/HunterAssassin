@@ -50,6 +50,18 @@
       <Filter>PathFinding</Filter>
     </ClCompile>
     <ClCompile Include="CollisionAvoidance.cpp" />
+    <ClCompile Include="DecisionTreeNode.cpp">
+      <Filter>DecisionMaking</Filter>
+    </ClCompile>
+    <ClCompile Include="Decision.cpp">
+      <Filter>DecisionMaking</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerInRange.cpp">
+      <Filter>DecisionMaking</Filter>
+    </ClCompile>
+    <ClCompile Include="Action.cpp">
+      <Filter>DecisionMaking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -102,6 +114,18 @@
       <Filter>PathFinding</Filter>
     </ClInclude>
     <ClInclude Include="CollisionAvoidance.h" />
+    <ClInclude Include="DecisionTreeNode.h">
+      <Filter>DecisionMaking</Filter>
+    </ClInclude>
+    <ClInclude Include="Decision.h">
+      <Filter>DecisionMaking</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerInRange.h">
+      <Filter>DecisionMaking</Filter>
+    </ClInclude>
+    <ClInclude Include="Action.h">
+      <Filter>DecisionMaking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Steering">
@@ -109,6 +133,9 @@
     </Filter>
     <Filter Include="PathFinding">
       <UniqueIdentifier>{7d9f6310-a443-4a83-bad8-9ea72c0bbf41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DecisionMaking">
+      <UniqueIdentifier>{a209419c-eb2b-4cc2-9b6f-d237c7fa5145}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

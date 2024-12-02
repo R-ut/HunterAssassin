@@ -22,7 +22,7 @@
 using namespace MATH;
 class Scene1 : public Scene {
 private:
-	
+private:
 	SDL_Window *window;
 	float xAxis = 25.0f;
 	float yAxis = 15.0f;
@@ -40,9 +40,7 @@ private:
 
 	KinematicBody* myNPC;
 	Character* Enemy1;
-
-
-
+	Character* Enemy2;
 
 	Graph* graph;
 	std::vector<Node*> sceneNodes;

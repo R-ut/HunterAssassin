@@ -1,26 +1,23 @@
 #ifndef STEERING_BEHAVIOUR_H
 #define STEERING_BEHAVIOUR_H
 
-#include <VMath.h>
-#include "KinematicBody.h"
+#include "Body.h" // Ensure Body is defined or included
 #include "SteeringOutput.h"
 
-class SteeringBehaviour
-{
+class SteeringBehaviour {
 protected:
-	SteeringOutput* result;
-	const Body* npc;
+    SteeringOutput* result; // Dynamically allocated
+    const Body* npc;
 
 public:
-	SteeringBehaviour() {
-		result = new SteeringOutput();
-		npc = NULL;
-	}
-
-	virtual ~SteeringBehaviour() {
-		if (result) { delete result; }
-	}
-	virtual SteeringOutput* getSteering() = 0;
+    SteeringBehaviour() : result(new SteeringOutput()), npc(nullptr) {}
+    virtual ~SteeringBehaviour() {
+        if (result) {
+            delete result;
+            result = nullptr; // Avoid dangling pointer
+        }
+    }
+    virtual SteeringOutput* getSteering() = 0;
 };
 
 #endif

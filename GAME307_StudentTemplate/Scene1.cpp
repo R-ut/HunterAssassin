@@ -11,6 +11,7 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	// create a NPC
 	myNPC = NULL;
 	Enemy1 = nullptr;
+	Enemy2 = nullptr;
 }
 
 Scene1::~Scene1() {}
@@ -112,8 +113,21 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 
-	// end of character set ups
+	if(!Enemy1->readDecisionTreeFromFile("nearPlayer") ){
+		return false;
+	}
+	
+	// Just for Testing for now
+	Enemy2 = new Character();
+	if (!Enemy2->OnCreate(this) || !Enemy2->setTextureWith("Blinky.png"))
+	{
+		return false;
+	}
 
+	if (!Enemy2->readDecisionTreeFromFile("nearPlayer")) {
+
+		return false;
+	}
 	// Set up the graph
 	graph = new Graph();
 	if (!graph->OnCreate(sceneNodes)) {
@@ -205,6 +219,10 @@ void Scene1::OnDestroy()
 		delete Enemy1;
 	}
 
+	if (Enemy2) {
+		Enemy2->OnDestroy();
+		delete Enemy2;
+	}
 	if (graph) {
 		graph->~Graph();
 	}
@@ -236,9 +254,10 @@ BehaviorState currentState = BehaviorState::None;
 
 
 void Scene1::Update(const float deltaTime) {
-	
+
 	// Calculate and apply any steering for npc's
-	Enemy1->Update(deltaTime);
+	//Enemy1->Update(deltaTime);
+	Enemy2->Update(deltaTime);
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 	Node* startNode = tiles[npcY][npcX]->getNode();
@@ -257,65 +276,123 @@ void Scene1::Update(const float deltaTime) {
 
 		tiles[tileY][tileX]->setPath(true);
 		Vec3 nodePos = tiles[tileY][tileX]->getPos();
+		// Use the player as the target
 		SteeringOutput* steering;
-		Seek* seeker = new Seek(myNPC, nodePos);
+		Seek* seeker = new Seek(myNPC, game->getPlayer());
 		steering = seeker->getSteering();
 		myNPC->Update(deltaTime, steering);
 	}
-	// Calling the methods below
-	float radius = myNPC->getRadius();
-	Vec3 position = myNPC->getPos();
-	Vec3 velocity = myNPC->getVel();
+	if (myNPC) {
+		// Update KinematicBody (myNPC)
+		Vec3 position = myNPC->getPos();
+		Vec3 velocity = myNPC->getVel();
 
-	float height, width;
-	height = game->getSceneHeight();
-	width = game->getSceneWidth();
+		// Apply boundary checks
+		float radius = myNPC->getRadius();
+		float sceneWidth = game->getSceneWidth();
+		float sceneHeight = game->getSceneHeight();
 
-	float minX = radius; // Left boundary
-	float maxX = width - radius; // Right boundary
-	float minY = radius; // Bottom boundary
-	float maxY = height - radius; // Top boundary
+		float minX = radius;              // Left boundary
+		float maxX = sceneWidth - radius; // Right boundary
+		float minY = radius;              // Bottom boundary
+		float maxY = sceneHeight - radius; // Top boundary
 
-	//Setting myNPC position and velocity to keep them within the boundaries
-	if (position.x < minX) {
-		position.x = minX;
-		velocity.x = -velocity.x; // Reverse velocity
+		if (position.x < minX) {
+			position.x = minX;
+			velocity.x = -velocity.x; // Reverse velocity
+		}
+		else if (position.x > maxX) {
+			position.x = maxX;
+			velocity.x = -velocity.x; // Reverse velocity
+		}
+
+		if (position.y < minY) {
+			position.y = minY;
+			velocity.y = -velocity.y; // Reverse velocity
+		}
+		else if (position.y > maxY) {
+			position.y = maxY;
+			velocity.y = -velocity.y; // Reverse velocity
+		}
+
+		// Update myNPC's position and velocity
+		myNPC->setPos(position);
+		myNPC->setVel(velocity);
+
+		// Update myNPC with steering (if applicable)
+		//myNPC->Update(deltaTime, nullptr); // Assuming steering is managed elsewhere
 	}
-	else if (position.x > maxX) {
-		position.x = maxX; 
-		velocity.x = -velocity.x; // Reverse velocity
+
+	// Update Enemy1
+	if (Enemy1) {
+
+		// Debugging: Log initial position and velocity
+		Vec3 position = Enemy1->getPos();
+		Vec3 velocity = Enemy1->getVel();
+
+		// Update Enemy1's behavior
+		Enemy1->Update(deltaTime);
+
+		// Apply boundary checks
+		float radius = Enemy1->getRadius();
+		float sceneWidth = game->getSceneWidth();
+		float sceneHeight = game->getSceneHeight();
+
+		float minX = radius;
+		float maxX = sceneWidth - radius;
+		float minY = radius;
+		float maxY = sceneHeight - radius;
+
+		// Minimum rebound velocity to avoid zero velocity
+		const float minReboundVelocity = 0.5f;
+
+		// X-axis boundary check
+		if (position.x < minX) {
+			position.x = minX;
+			velocity.x = std::max(-velocity.x, minReboundVelocity); // Reverse X velocity
+		}
+		else if (position.x > maxX) {
+			position.x = maxX;
+			velocity.x = std::min(-velocity.x, -minReboundVelocity); // Reverse X velocity
+		}
+
+		// Y-axis boundary check
+		if (position.y < minY) {
+			position.y = minY;
+			velocity.y = std::max(-velocity.y, minReboundVelocity); // Reverse Y velocity
+		}
+		else if (position.y > maxY) {
+			position.y = maxY;
+			velocity.y = std::min(-velocity.y, -minReboundVelocity); // Reverse Y velocity
+		}
+
+		// Update Enemy1's position and velocity after boundary checks
+		Enemy1->setPos(position);
+		Enemy1->setVel(velocity);
+
 	}
 
-	if (position.y < minY) {
-		position.y = minY; 
-		velocity.y = -velocity.y; // Reverse velocity
+	// Handle collisions
+	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
+	if (player) {
+		collisionAvoidance.HandlePlayerWallCollision(player, walls);
+		if (myNPC) {
+			collisionAvoidance.HandlePlayerNPCollision(player, myNPC, renderer);
+			collisionAvoidance.HandleNPCWallCollision(myNPC, walls);
+		}
+		if (Enemy1) {
+			collisionAvoidance.HandlePlayerNPCollision_(player, Enemy1, renderer);
+			collisionAvoidance.HandleNPCWallCollision_(Enemy1, walls);
+		}
 	}
-	else if (position.y > maxY) {
-		position.y = maxY; 
-		velocity.y = -velocity.y; // Reverse velocity
-	}
-
-	// Set the new position and velocity to myNPC
-	myNPC->setPos(position);
-	myNPC->setVel(velocity);
 
 	// Update player
-	game->getPlayer()->Update(deltaTime);
-
-	// Handle player-wall collision && NPC-Player collision
-	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
-	if (player != nullptr) { // Ensure player is not null
-		collisionAvoidance.HandlePlayerWallCollision(player, walls);
-		collisionAvoidance.HandlePlayerNPCollision(player, myNPC, renderer);
+	if (game->getPlayer()) {
+		game->getPlayer()->Update(deltaTime);
 	}
-
-	// Handle NPC-wall collision
-	if (myNPC != nullptr) { // Ensure myNPC is not null
-		collisionAvoidance.HandleNPCWallCollision(myNPC, walls);
-	}
-	
 }
 
+	
 void Scene1::Render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
@@ -344,7 +421,9 @@ void Scene1::Render() {
 	
 
 	// render any npc's
-	//Enemy1->render(5.15f);
+	Enemy1->render(5.15f);
+
+	Enemy2->render(0.15f);
 	
 	renderMyNPC();
 	// render the player

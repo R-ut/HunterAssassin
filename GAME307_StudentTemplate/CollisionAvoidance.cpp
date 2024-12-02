@@ -43,6 +43,50 @@ void CollisionAvoidance::HandlePlayerNPCollision(PlayerBody* player, KinematicBo
     }
 }
 
+void CollisionAvoidance::HandlePlayerNPCollision_(PlayerBody* player, Character* character_npc, SDL_Renderer* renderer)
+{
+   // static SDL_Texture* originalTexture = npc->getTexture(); // Store the original texture
+   // static bool isCollisionTexture = false; // Keep track of the current texture state
+
+    // Calculate the distance between the player and NPC
+    float pointDistance = VMath::mag(player->getPos() - character_npc->getPos());
+
+    // If they are within the collision distance, handle the collision
+    if (pointDistance < collisionDistance) {
+        // Load the collision texture if not already set
+       // if (!isCollisionTexture) {
+            //SDL_Surface* collisionImage = IMG_Load("Inky.png");
+            //if (!collisionImage) {
+            //    std::cerr << "Failed to load collision image: " << IMG_GetError() << std::endl;
+            //    return;
+            //}
+            //SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
+            //SDL_FreeSurface(collisionImage);  // Free the surface after creating the texture
+
+            // Change NPC texture to the collision texture
+          //  npc->setTexture(collisionTexture);
+            //isCollisionTexture = true; // Mark as collision texture
+        //}
+
+        // Calculate new direction for NPC to move away
+        Vec3 newDirection_ = VMath::normalize(character_npc->getPos() - player->getPos());
+
+        // Move NPC to a new position to prevent overlapping
+        Vec3 newPosition_ = character_npc->getPos() + newDirection_ * (collisionDistance - pointDistance);
+        character_npc->setPos(newPosition_);
+
+        // Set NPC velocity in the new direction
+        character_npc->setVel(newDirection_);
+    }
+    //else {
+    //    // Reset to the original texture if no collision
+    //    if (isCollisionTexture) {
+    //       // npc->setTexture(originalTexture); // Revert to original texture
+    //        isCollisionTexture = false; // Mark as original texture
+    //    }
+    //}
+}
+
 void CollisionAvoidance::HandlePlayerWallCollision(PlayerBody* player, const std::vector<Wall*>& walls) {
     Vec3 playerPos = player->getPos();
     float playerWidth = 1.0f;  // Player width
@@ -67,6 +111,22 @@ void CollisionAvoidance::HandleNPCWallCollision(KinematicBody* npc, const std::v
 
     npc->setPos(npcPos);
     npc->setVel(npcVel);
+}
+
+void CollisionAvoidance::HandleNPCWallCollision_(Character* character_npc, const std::vector<Wall*>& walls)
+{
+    Vec3 npcPos_ = character_npc->getPos();
+    Vec3 npcVel_ = character_npc->getVel();
+    float npcWidth_ = 1.0f;  // NPC width
+    float npcHeight_ = 1.0f; // NPC height
+
+    for (const Wall* wall : walls) {
+        ResolveWallCollision(npcPos_, npcWidth_, npcHeight_, wall);
+    }
+
+    character_npc->setPos(npcPos_);
+    character_npc->setVel(npcVel_);
+   
 }
 
 void CollisionAvoidance::ResolveWallCollision(Vec3& position, float width, float height, const Wall* wall) {
