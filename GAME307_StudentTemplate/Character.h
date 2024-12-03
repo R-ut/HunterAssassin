@@ -27,15 +27,11 @@ private:
 	Vec3 pos;   // Position of the character
 	Vec3 vel; 
 	float radius;
+	float scale;
 
 public:
-	Character()
-	{
-		body = NULL;
-		scene = NULL;
-		decisionTree = NULL;
+	Character() : body(nullptr), scene(nullptr), decisionTree(nullptr), radius(1.0f), scale(1.0f) {}
 
-	}
 
 	~Character() {};
 
@@ -61,6 +57,11 @@ public:
 
 	float getRadius() const { return radius; }
 	void setRadius(float r) { radius = r; }
+
+	// New getter and setter for scale
+	float getScale() const { return scale; }
+
+	void setScale(float newScale) { scale = newScale; }
 };
 
 #endif

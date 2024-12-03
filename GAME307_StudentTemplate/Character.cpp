@@ -158,31 +158,46 @@ void Character::HandleEvents(const SDL_Event& event)
 	// handle events here, if needed
 }
 
-void Character::render(const Vec3& cameraOffset, float scale) const
-{
+void Character::render(const Vec3& cameraOffset, float Scaling) const {
 	SDL_Renderer* renderer = scene->game->getRenderer();
 	Matrix4 projectionMatrix = scene->getProjectionMatrix();
 
 	SDL_Rect square;
 	Vec3 screenCoords;
-	int    w, h;
+	int w, h;
 
 	// Adjust position by subtracting the camera offset
 	Vec3 adjustedPos = body->getPos() - cameraOffset;
 
-	// notice use of "body" in the following
+	// Retrieve the texture dimensions
 	SDL_QueryTexture(body->getTexture(), nullptr, nullptr, &w, &h);
-	w = static_cast<int>(w * scale);
-	h = static_cast<int>(h * scale);
+
+	// Manually set finalScale in Scene1 class
+	float finalScale;
+	if (Scaling > 0.0f) {
+		finalScale = Scaling; 
+	}
+	else {
+		finalScale = scale; 
+	}
+
+	// Apply scaling to the texture dimensions
+	w = static_cast<int>(w * finalScale);
+	h = static_cast<int>(h * finalScale);
+
+	// Project the adjusted position to screen coordinates
 	screenCoords = projectionMatrix * adjustedPos;
+
+	// Set up the rectangle for rendering
 	square.x = static_cast<int>(screenCoords.x - 0.5f * w);
 	square.y = static_cast<int>(screenCoords.y - 0.5f * h);
 	square.w = w;
 	square.h = h;
 
-	// Convert character orientation from radians to degrees.
+	// Convert character orientation from radians to degrees
 	float orientation = body->getOrientation() * 180.0f / M_PI;
 
+	// Render the character with the texture, applying the rotation
 	SDL_RenderCopyEx(renderer, body->getTexture(), nullptr, &square,
 		orientation, nullptr, SDL_FLIP_NONE);
 }

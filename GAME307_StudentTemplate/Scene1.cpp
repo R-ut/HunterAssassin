@@ -223,10 +223,10 @@ void Scene1::OnDestroy()
 		delete Enemy1;
 	}
 
-	if (Enemy2) {
+	/*if (Enemy2) {
 		Enemy2->OnDestroy();
 		delete Enemy2;
-	}
+	}*/
 	if (graph) {
 		graph->~Graph();
 	}
@@ -292,7 +292,7 @@ void Scene1::Update(const float deltaTime) {
 
 	// Calculate and apply any steering for npc's
 	//Enemy1->Update(deltaTime);
-	Enemy2->Update(deltaTime);
+	//Enemy2->Update(deltaTime);
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 	Node* startNode = tiles[npcY][npcX]->getNode();
@@ -454,8 +454,10 @@ void Scene1::Render() {
 	
 
 	// Render NPCs
-	if (Enemy1) Enemy1->render(cameraOffset);
-	if (Enemy2) Enemy2->render(cameraOffset);
+	if (Enemy1) {
+		Enemy1->render(cameraOffset, 5.10f);
+	}
+	if (Enemy2) Enemy2->render(cameraOffset, 0.15f);
 
 	
 	renderMyNPC();
