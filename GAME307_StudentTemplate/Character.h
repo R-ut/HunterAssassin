@@ -49,6 +49,8 @@ public:
 	Vec3 getPos() const { return body->getPos(); }
 	Vec3 getPlayerPos() const { return scene->game->getPlayer()->getPos(); }
 
+	KinematicBody* getBody() const { return body; }
+
 	void setPos(const Vec3& newPos) { pos = newPos; }
 
 	// Getter for velocity

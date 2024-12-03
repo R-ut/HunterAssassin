@@ -6,16 +6,16 @@
 #include <vector>
 
 struct BehaviorAndWeight {
-    SteeringBehaviour* behavior;
+    std::shared_ptr<SteeringBehaviour> behavior;
     float weight;
 };
 
 class BlendedSteering : public SteeringBehaviour {
 public:
     BlendedSteering(KinematicBody* character) : SteeringBehaviour(character) {}
-    ~BlendedSteering();
+    ~BlendedSteering() = default;
 
-    void addBehavior(SteeringBehaviour* behavior, float weight);
+    void addBehavior(std::shared_ptr<SteeringBehaviour> behavior, float weight);
     SteeringOutput* getSteering() override;
 
 private:

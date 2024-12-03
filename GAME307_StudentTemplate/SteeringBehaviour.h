@@ -12,8 +12,13 @@ protected:
 
 
 public:
-    SteeringBehaviour(KinematicBody* character_) : character(character_) {}
-    SteeringBehaviour() : result(new SteeringOutput()), npc(nullptr) {}
+    // Constructor with character initialization
+    SteeringBehaviour(KinematicBody* character_)
+        : result(new SteeringOutput()), npc(nullptr), character(character_) {}
+
+    // Default constructor for flexibility
+    SteeringBehaviour()
+        : result(new SteeringOutput()), npc(nullptr), character(nullptr) {}
     virtual ~SteeringBehaviour() {
         if (result) {
             delete result;
@@ -21,6 +26,16 @@ public:
         }
     }
     virtual SteeringOutput* getSteering() = 0;
+
+    //// Setter for NPC (optional, if needed later in your logic)
+    //void setNPC(const Body* npc_) {
+    //    npc = npc_;
+    //}
+
+    //// Setter for Character (optional, if needed later in your logic)
+    //void setCharacter(KinematicBody* character_) {
+    //    character = character_;
+    //}
 };
 
 #endif

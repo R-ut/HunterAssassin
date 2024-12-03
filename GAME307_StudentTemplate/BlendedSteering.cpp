@@ -1,13 +1,8 @@
 #include "BlendedSteering.h"
 #include "VMath.h"
 
-BlendedSteering::~BlendedSteering() {
-    for (auto& bw : behaviors) {
-        delete bw.behavior;
-    }
-}
 
-void BlendedSteering::addBehavior(SteeringBehaviour* behavior, float weight) {
+void BlendedSteering::addBehavior(std::shared_ptr<SteeringBehaviour> behavior, float weight) {
     behaviors.push_back({ behavior, weight });
 }
 

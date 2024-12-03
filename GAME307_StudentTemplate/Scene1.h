@@ -17,7 +17,10 @@
 #include "Node.h"
 #include "Tile.h"
 #include "CollisionAvoidance.h"
-
+#include "Flocking.h"
+#include "BlendedSteering.h"
+#include "PlayerBody.h"
+#include "GameManager.h"
 
 using namespace MATH;
 class Scene1 : public Scene {
@@ -49,6 +52,8 @@ private:
 
 	
 	std::vector<std::vector<Tile*>> tiles;
+	// Flocking-related members
+	std::vector<KinematicBody*> flockingNeighbors; // List of flocking neighbors
 	void createTiles();
 public:
 

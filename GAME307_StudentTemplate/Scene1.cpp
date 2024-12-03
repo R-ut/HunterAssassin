@@ -1,7 +1,6 @@
 #include "Scene1.h"
 #include <MMath.h>
-#include "PlayerBody.h"
-#include "GameManager.h"
+
 using namespace MATH;
 Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	window = sdlWindow_;
@@ -130,6 +129,9 @@ bool Scene1::OnCreate() {
 
 		return false;
 	}
+
+	// Create neighbors for flocking
+	// flockingNeighbors = { Enemy1->getBody(), Enemy2->getBody() }; // Populate with NPCs
 	// Set up the graph
 	graph = new Graph();
 	if (!graph->OnCreate(sceneNodes)) {
@@ -265,6 +267,28 @@ void Scene1::Update(const float deltaTime) {
 	// Clamp camera offset within bounds
 	cameraOffset.x = std::max(0.0f, std::min(cameraOffset.x, xAxis - xAxis / 2.0f));
 	cameraOffset.y = std::max(0.0f, std::min(cameraOffset.y, yAxis - yAxis / 2.0f));
+
+	//// --- Flocking and Blending Implementation ---
+	//auto blendedSteering = std::make_shared<BlendedSteering>(myNPC);
+
+	//// Add behaviors with weights
+	//blendedSteering->addBehavior(std::make_shared<Flocking>(myNPC, flockingNeighbors, 1.0f, 1.0f, 1.0f), 0.7f);
+	//blendedSteering->addBehavior(std::make_shared<Seek>(myNPC, game->getPlayer()), 0.3f);
+
+	//// Get the combined steering
+	//SteeringOutput* steering = blendedSteering->getSteering();
+
+	//// Limit the final acceleration
+	//const float maxAcceleration = 10.0f;
+	//if (VMath::mag(steering->linear) > maxAcceleration) {
+	//	steering->linear = VMath::normalize(steering->linear) * maxAcceleration;
+	//}
+
+	//// Apply steering to NPC
+	//myNPC->Update(deltaTime, steering);
+
+	//// Clean up
+	//delete steering;
 
 	// Calculate and apply any steering for npc's
 	//Enemy1->Update(deltaTime);
