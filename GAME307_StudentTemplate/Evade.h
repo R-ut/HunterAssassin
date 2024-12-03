@@ -3,7 +3,8 @@
 
 #include "body.h"
 #include "SteeringOutput.h"
-class Evade {
+#include "SteeringBehaviour.h"
+class Evade : public SteeringBehaviour {
 private:
     const Body* npc;
     const Body* target;

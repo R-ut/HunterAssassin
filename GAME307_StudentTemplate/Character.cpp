@@ -114,6 +114,18 @@ void Character::Update(float deltaTime)
 			steerToSeekPlayer(steering); // Continue seeking
 			break;
 
+		case ACTION_SET::EVADE:
+			steerToEvadePlayer(steering);
+			break;
+
+		case ACTION_SET::PURSUE:
+			steerToPursuePlayer(steering);
+			break;
+
+		case ACTION_SET::ARRIVE:
+			steerToArrivePlayer(steering);
+			break;
+
 		case ACTION_SET::DO_NOTHING:
 			// Stop movement if no action
 			steering->linear = Vec3(0.0f, 0.0f, 0.0f);
@@ -152,6 +164,24 @@ void Character::steerToSeekPlayer(SteeringOutput* steering)
 	{
 		delete steering_algorithm;
 	}
+}
+void Character::steerToEvadePlayer(SteeringOutput* steering)
+{
+	SteeringBehaviour* steering_algorithm = new Evade(body, scene->game->getPlayer(), 2.0f); // Adjust maxPrediction as needed
+	*steering += *(steering_algorithm->getSteering());
+	delete steering_algorithm;
+}
+void Character::steerToPursuePlayer(SteeringOutput* steering)
+{
+	SteeringBehaviour* steering_algorithm = new Pursue(body, scene->game->getPlayer(), 2.0f); // Adjust maxPrediction as needed
+	*steering += *(steering_algorithm->getSteering());
+	delete steering_algorithm;
+}
+void Character::steerToArrivePlayer(SteeringOutput* steering)
+{
+	SteeringBehaviour* steering_algorithm = new Arrive(body, scene->game->getPlayer());
+	*steering += *(steering_algorithm->getSteering());
+	delete steering_algorithm;
 }
 void Character::HandleEvents(const SDL_Event& event)
 {
@@ -220,6 +250,19 @@ bool Character::readDecisionTreeFromFile(string file_)
 		decisionTree = new PlayerInRange(trueNode, falseNode, this);
 		return true;
 
+	}
+	else if (file_ == "complexLogic") {
+		// Combine multiple decisions for SEEK, PURSUE, and EVADE
+		DecisionTreeNode* pursueNode = new Action(ACTION_SET::PURSUE); // Predict and follow
+		DecisionTreeNode* evadeNode = new Action(ACTION_SET::EVADE);   // Flee if too close
+		DecisionTreeNode* seekNode = new Action(ACTION_SET::SEEK);     // Move directly toward if far
+
+		// Decision logic: PURSUE or EVADE based on proximity
+		DecisionTreeNode* pursueOrEvade = new PlayerInRange(evadeNode, pursueNode, this);
+
+		// Set the decision tree to SEEK or PURSUE/EVADE based on finer proximity
+		decisionTree = new PlayerInRange(pursueOrEvade, seekNode, this);
+		return true;
 	}
 	return false;
 }

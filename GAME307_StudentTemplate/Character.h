@@ -7,7 +7,9 @@
 #include "KinematicBody.h"
 
 #include "Seek.h"
-
+#include "Evade.h"
+#include "Pursue.h"
+#include "Arrive.h"
 #include "Action.h"
 
 using namespace std;
@@ -23,6 +25,9 @@ private:
 	DecisionTreeNode* decisionTree;
 
 	void steerToSeekPlayer(SteeringOutput* steering);
+	void steerToEvadePlayer(SteeringOutput* steering);
+	void steerToPursuePlayer(SteeringOutput* steering);
+	void steerToArrivePlayer(SteeringOutput* steering);
 
 	Vec3 pos;   // Position of the character
 	Vec3 vel; 

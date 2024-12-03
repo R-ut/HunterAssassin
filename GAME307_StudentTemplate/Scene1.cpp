@@ -114,7 +114,7 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 
-	if(!Enemy1->readDecisionTreeFromFile("nearPlayer") ){
+	if(!Enemy1->readDecisionTreeFromFile("complexLogic") ){
 		return false;
 	}
 	
