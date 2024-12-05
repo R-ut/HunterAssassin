@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -79,12 +79,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\GameDev\MathLibrary\include;C:\GameDev\SDL\include;$(SolutionDir)\GAME307_StudentTemplate;$(SolutionDir)\GAME307_StudentTemplate\Steering;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\GameDev\MathLibrary\include;C:\GameDev\SDL\include;$(SolutionDir)\GAME307_StudentTemplate;$(SolutionDir)\GAME307_StudentTemplate\Steering;C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\GameDev\SDL\lib;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\GameDev\SDL\lib;C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -136,7 +136,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\Users\laksh\Downloads\tinyxml2.cpp" />
     <ClCompile Include="Action.cpp" />
     <ClCompile Include="Arrive.cpp" />
     <ClCompile Include="BlendedSteering.cpp" />
@@ -158,6 +157,7 @@
     <ClCompile Include="Pursue.cpp" />
     <ClCompile Include="Scene1.cpp" />
     <ClCompile Include="Scene2.cpp" />
+    <ClCompile Include="Scene3.cpp" />
     <ClCompile Include="Seek.cpp" />
     <ClCompile Include="StaticBody.cpp" />
     <ClCompile Include="SteeringBehaviour.cpp" />
@@ -165,11 +165,11 @@
     <ClCompile Include="Steering\SteeringOutput.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="Wall.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\Users\laksh\Downloads\tinyxml2.h" />
     <ClInclude Include="Action.h" />
     <ClInclude Include="Arrive.h" />
     <ClInclude Include="BlendedSteering.h" />
@@ -192,6 +192,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Scene1.h" />
     <ClInclude Include="Scene2.h" />
+    <ClInclude Include="Scene3.h" />
     <ClInclude Include="Seek.h" />
     <ClInclude Include="StaticBody.h" />
     <ClInclude Include="SteeringBehaviour.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Steering\SteeringOutput.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

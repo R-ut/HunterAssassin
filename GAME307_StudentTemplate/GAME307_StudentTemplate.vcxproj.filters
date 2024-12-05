@@ -64,8 +64,9 @@
     </ClCompile>
     <ClCompile Include="Flocking.cpp" />
     <ClCompile Include="BlendedSteering.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\Users\laksh\Downloads\tinyxml2.cpp" />
     <ClCompile Include="Scene2.cpp" />
+    <ClCompile Include="tinyxml2.cpp" />
+    <ClCompile Include="Scene3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -132,8 +133,9 @@
     </ClInclude>
     <ClInclude Include="Flocking.h" />
     <ClInclude Include="BlendedSteering.h" />
-    <ClInclude Include="..\..\..\..\..\..\Users\laksh\Downloads\tinyxml2.h" />
     <ClInclude Include="Scene2.h" />
+    <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="Scene3.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Steering">
