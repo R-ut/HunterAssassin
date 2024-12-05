@@ -103,20 +103,20 @@ bool Scene3::OnCreate() {
     flockNeighbors.push_back(enemy3->getBody());
     flockNeighbors.push_back(enemy4->getBody());
 
-    flockingBehavior1 = new Flocking(enemy1->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
-    flockingBehavior2 = new Flocking(enemy2->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
-    flockingBehavior3 = new Flocking(enemy3->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
-    flockingBehavior4 = new Flocking(enemy4->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
+    flockingBehavior1 = new Flocking(enemy1->getBody(), flockNeighbors, 4.0f, 4.0f, 4.0f);
+    flockingBehavior2 = new Flocking(enemy2->getBody(), flockNeighbors, 4.0f, 4.0f, 4.0f);
+    flockingBehavior3 = new Flocking(enemy3->getBody(), flockNeighbors, 4.0f, 4.0f, 4.0f);
+    flockingBehavior4 = new Flocking(enemy4->getBody(), flockNeighbors, 4.0f, 4.0f, 4.0f);
 
     // Set up blended steering
     blendedSteering1 = new BlendedSteering(enemy1->getBody());
-    blendedSteering1->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior1), 1.0f);
+    blendedSteering1->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior1), 4.0f);
 
     blendedSteering2 = new BlendedSteering(enemy2->getBody());
     blendedSteering2->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior2), 1.0f);
 
     blendedSteering3 = new BlendedSteering(enemy3->getBody());
-    blendedSteering3->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior3), 1.0f);
+    blendedSteering3->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior3), 4.0f);
 
     blendedSteering4 = new BlendedSteering(enemy4->getBody());
     blendedSteering4->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior4), 1.0f);
