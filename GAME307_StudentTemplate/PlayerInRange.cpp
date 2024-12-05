@@ -7,7 +7,7 @@ using namespace MATH;
 
 bool PlayerInRange::testValue()
 {
-	float threshold = 2.0f;
+	float threshold = 5.0f;
 	if (VMath::distance(owner->getPlayerPos(), owner->getPos()) < threshold)
 	{
 		return true;

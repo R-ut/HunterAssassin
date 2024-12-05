@@ -20,6 +20,7 @@ public:
     Vec3 getPosition() const { return position; }
     float getWidth() const { return width; }
     float getHeight() const { return height; }
+    bool CheckCollision(const Vec3& pos) const;
 };
 
 #endif

@@ -1,269 +1,249 @@
 #include "Character.h"
 #include "PlayerInRange.h"
+#include "tinyxml2.h"
 
-bool Character::OnCreate(Scene* scene_)
-{
-	scene = scene_;
+using namespace tinyxml2;
 
-	// Configure and instantiate the body to use for the demo
-	if (!body)
-	{
-		float radius = 0.7;
-		float orientation = 0.0f;
-		float rotation = 0.0f;
-		float angular = 0.0f;
-		float maxSpeed = 3.0f;
-		float maxAcceleration = 10.0f;
-		float maxRotation = 2.0f;
-		float maxAngular = 10.0f;
-		body = new KinematicBody(
-			Vec3(10.0f, 5.0f, 0), Vec3(0, 0, 0), Vec3(0, 0, 0), 1.0f,
-			radius,
-			orientation,
-			rotation,
-			angular,
-			maxSpeed,
-			maxAcceleration,
-			maxRotation,
-			maxAngular
-		);
-	}
+bool Character::OnCreate(Scene* scene_) {
+    scene = scene_;
 
-	if (!body)
-	{
-		return false;
-	}
+    if (!body) {
+        // Initialize the kinematic body with proper parameters
+        float radius = 0.7f;
+        float orientation = 0.0f;
+        float rotation = 0.0f;
+        float angular = 0.0f;
+        float maxSpeed = 3.0f;
+        float maxAcceleration = 10.0f;
+        float maxRotation = 2.0f;
+        float maxAngular = 10.0f;
 
-	return true;
+        body = new KinematicBody(
+            Vec3(10.0f, 5.0f, 0), Vec3(0, 0, 0), Vec3(0, 0, 0), 1.0f,
+            radius, orientation, rotation, angular,
+            maxSpeed, maxAcceleration, maxRotation, maxAngular
+        );
+    }
+
+    if (!body) {
+        std::cerr << "Error: Failed to create body.\n";
+        return false;
+    }
+
+    return true;
 }
 
-void Character::OnDestroy()
-{
-	if (body)
-	{
-		if (body->getTexture())
-		{
-			SDL_DestroyTexture(body->getTexture());
-		}
-		delete body;
-	}
-};
-
-bool Character::setTextureWith(string file)
-{
-	SDL_Surface* image = IMG_Load(file.c_str());
-	if (image == nullptr) {
-		std::cerr << "Can't open the image" << std::endl;
-		return false;
-	}
-	SDL_Window* window = scene->getWindow();
-	SDL_Renderer* renderer = SDL_GetRenderer(window);
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, image);
-	if (!texture)
-	{
-		std::cerr << "Can't create texture" << std::endl;
-		return false;
-	}
-	if (body->getTexture()) SDL_DestroyTexture(body->getTexture());
-	body->setTexture(texture);
-	SDL_FreeSurface(image);
-	return true;
+void Character::OnDestroy() {
+    if (body) {
+        if (body->getTexture()) {
+            SDL_DestroyTexture(body->getTexture());
+        }
+        delete body;
+    }
+    // If decisionTree is dynamically allocated, clean up here
+    if (decisionTree) {
+        delete decisionTree;
+    }
 }
 
-void Character::Update(float deltaTime)
-{
-	// Create a new overall steering output
-	SteeringOutput* steering = new SteeringOutput();
+bool Character::setTextureWith(const std::string& file) {
+    SDL_Surface* image = IMG_Load(file.c_str());
+    if (!image) {
+        std::cerr << "Can't open the image: " << file << std::endl;
+        return false;
+    }
 
-	// Get the current position and velocity of the character
-	Vec3 position = body->getPos();
-	Vec3 velocity = body->getVel();
+    SDL_Window* window = scene->getWindow();
+    SDL_Renderer* renderer = SDL_GetRenderer(window);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, image);
+    if (!texture) {
+        std::cerr << "Can't create texture from image: " << file << std::endl;
+        SDL_FreeSurface(image);
+        return false;
+    }
 
-	// Get scene boundaries
-	float radius = body->getRadius();
-	float minX = radius;
-	float maxX = scene->game->getSceneWidth() - radius;
-	float minY = radius;
-	float maxY = scene->game->getSceneHeight() - radius;
+    if (body->getTexture()) {
+        SDL_DestroyTexture(body->getTexture());
+    }
 
-	// Boundary checks and position correction
-	if (position.x < minX) {
-		position.x = minX;
-		velocity.x = std::abs(velocity.x); // Rebound right
-	}
-	else if (position.x > maxX) {
-		position.x = maxX;
-		velocity.x = -std::abs(velocity.x); // Rebound left
-	}
-
-	if (position.y < minY) {
-		position.y = minY;
-		velocity.y = std::abs(velocity.y); // Rebound up
-	}
-	else if (position.y > maxY) {
-		position.y = maxY;
-		velocity.y = -std::abs(velocity.y); // Rebound down
-	}
-
-	// Apply seeking behavior even after collisions
-	if (decisionTree) {
-		DecisionTreeNode* action = decisionTree->makeDecision();
-
-		switch (static_cast<Action*>(action)->getValue()) {
-		case ACTION_SET::SEEK:
-			steerToSeekPlayer(steering); // Continue seeking
-			break;
-
-		case ACTION_SET::EVADE:
-			steerToEvadePlayer(steering);
-			break;
-
-		case ACTION_SET::PURSUE:
-			steerToPursuePlayer(steering);
-			break;
-
-		case ACTION_SET::ARRIVE:
-			steerToArrivePlayer(steering);
-			break;
-
-		case ACTION_SET::DO_NOTHING:
-			// Stop movement if no action
-			steering->linear = Vec3(0.0f, 0.0f, 0.0f);
-			steering->angular = 0.0f;
-			break;
-
-		default:
-			break;
-		}
-	}
-
-	// Apply steering and position updates
-	body->setPos(position);
-	body->setVel(velocity);
-	body->Update(deltaTime, steering);
-
-	// Clean up steering output
-	if (steering)
-		delete steering;
+    body->setTexture(texture);
+    SDL_FreeSurface(image);
+    return true;
 }
-void Character::steerToSeekPlayer(SteeringOutput* steering)
-{
-	// set the target for steering; target is used by the steerTo... functions
-// (often the target is the Player)
 
-// using the target, calculate and set values in the overall steering output
-// TODO: error handling if new fails
-
-	SteeringBehaviour* steering_algorithm = new Seek(body, scene->game->getPlayer());
-	*steering += *(steering_algorithm->getSteering());
+void Character::steerToSeekPlayer(SteeringOutput* steering) {
+    SteeringBehaviour* steering_algorithm = new Seek(body, scene->game->getPlayer());
+    *steering += *(steering_algorithm->getSteering());
+    delete steering_algorithm;
+}
 
 
-	// clean up memory
-	// (delete only those objects created in this function)
-	if (steering_algorithm)
-	{
-		delete steering_algorithm;
-	}
+void Character::steerToEvadePlayer(SteeringOutput* steering) {
+    SteeringBehaviour* steering_algorithm = new Evade(body, scene->game->getPlayer(), 2.0f);  // Adjust maxPrediction if needed
+    *steering += *(steering_algorithm->getSteering());
+    delete steering_algorithm;
 }
-void Character::steerToEvadePlayer(SteeringOutput* steering)
-{
-	SteeringBehaviour* steering_algorithm = new Evade(body, scene->game->getPlayer(), 2.0f); // Adjust maxPrediction as needed
-	*steering += *(steering_algorithm->getSteering());
-	delete steering_algorithm;
+
+void Character::steerToPursuePlayer(SteeringOutput* steering) {
+    SteeringBehaviour* steering_algorithm = new Pursue(body, scene->game->getPlayer(), 2.0f);  // Adjust maxPrediction if needed
+    *steering += *(steering_algorithm->getSteering());
+    delete steering_algorithm;
 }
-void Character::steerToPursuePlayer(SteeringOutput* steering)
-{
-	SteeringBehaviour* steering_algorithm = new Pursue(body, scene->game->getPlayer(), 2.0f); // Adjust maxPrediction as needed
-	*steering += *(steering_algorithm->getSteering());
-	delete steering_algorithm;
+
+void Character::steerToArrivePlayer(SteeringOutput* steering) {
+    SteeringBehaviour* steering_algorithm = new Arrive(body, scene->game->getPlayer());
+    *steering += *(steering_algorithm->getSteering());
+    delete steering_algorithm;
 }
-void Character::steerToArrivePlayer(SteeringOutput* steering)
-{
-	SteeringBehaviour* steering_algorithm = new Arrive(body, scene->game->getPlayer());
-	*steering += *(steering_algorithm->getSteering());
-	delete steering_algorithm;
+
+void Character::Update(float deltaTime) {
+    SteeringOutput* steering = new SteeringOutput();
+
+    // Apply decision tree logic for behavior
+    if (decisionTree) {
+        DecisionTreeNode* action = decisionTree->makeDecision();
+
+        switch (static_cast<Action*>(action)->getValue()) {
+        case ACTION_SET::SEEK:
+            steerToSeekPlayer(steering);
+            break;
+        case ACTION_SET::EVADE:
+            steerToEvadePlayer(steering);
+            break;
+        case ACTION_SET::PURSUE:
+            steerToPursuePlayer(steering);
+            break;
+        case ACTION_SET::ARRIVE:
+            steerToArrivePlayer(steering);
+            break;
+        case ACTION_SET::DO_NOTHING:
+            steering->linear = Vec3(0.0f, 0.0f, 0.0f);
+            //steering->angular = 0.0f;
+            break;
+        default:
+            break;
+        }
+    }
+
+    // Update velocity with steering output
+    Vec3 velocity = body->getVel();
+    velocity += steering->linear * deltaTime;
+
+    // Clamp velocity to max speed
+    if (VMath::mag(velocity) > body->getMaxSpeed()) {
+        velocity = VMath::normalize(velocity) * body->getMaxSpeed();
+    }
+
+    // Update position with velocity
+    Vec3 position = body->getPos();
+    position += velocity * deltaTime;
+
+    // Apply updates
+    body->setPos(position);
+    body->setVel(velocity);
+
+    // Debugging: Log position and velocity
+    std::cout << "Enemy Position: " << position.x << ", " << position.y << "\n";
+    std::cout << "Enemy Velocity: " << velocity.x << ", " << velocity.y << "\n";
+
+    // Clean up steering output
+    delete steering;
 }
+
+
+
 void Character::HandleEvents(const SDL_Event& event)
 {
-	// handle events here, if needed
 }
 
-void Character::render(const Vec3& cameraOffset, float Scaling) const {
-	SDL_Renderer* renderer = scene->game->getRenderer();
-	Matrix4 projectionMatrix = scene->getProjectionMatrix();
+void Character::render(const Vec3& cameraOffset, float scale, const Matrix4& projectionMatrix, bool useCameraOffset) const {
+    SDL_Renderer* renderer = scene->game->getRenderer();
+    SDL_Rect square;
+    Vec3 screenCoords;
+    int w, h;
 
-	SDL_Rect square;
-	Vec3 screenCoords;
-	int w, h;
+    // Retrieve the texture dimensions
+    SDL_QueryTexture(body->getTexture(), nullptr, nullptr, &w, &h);
 
-	// Adjust position by subtracting the camera offset
-	Vec3 adjustedPos = body->getPos() - cameraOffset;
+    // Apply scaling to the texture dimensions
+    w = static_cast<int>(w * scale);
+    h = static_cast<int>(h * scale);
 
-	// Retrieve the texture dimensions
-	SDL_QueryTexture(body->getTexture(), nullptr, nullptr, &w, &h);
+    // Adjust position manually based on the flag
+    Vec3 adjustedPos = body->getPos();
+    if (useCameraOffset) {
+        adjustedPos -= cameraOffset;
+    }
 
-	// Manually set finalScale in Scene1 class
-	float finalScale;
-	if (Scaling > 0.0f) {
-		finalScale = Scaling; 
-	}
-	else {
-		finalScale = scale; 
-	}
+    // Project the adjusted position to screen coordinates
+    screenCoords = projectionMatrix * Vec4(adjustedPos.x, adjustedPos.y, adjustedPos.z, 1.0f);
 
-	// Apply scaling to the texture dimensions
-	w = static_cast<int>(w * finalScale);
-	h = static_cast<int>(h * finalScale);
+    // Set up the rectangle for rendering
+    square.x = static_cast<int>(screenCoords.x - 0.5f * w);  // Center the texture horizontally
+    square.y = static_cast<int>(screenCoords.y - 0.5f * h);  // Center the texture vertically
+    square.w = w;
+    square.h = h;
 
-	// Project the adjusted position to screen coordinates
-	screenCoords = projectionMatrix * adjustedPos;
-
-	// Set up the rectangle for rendering
-	square.x = static_cast<int>(screenCoords.x - 0.5f * w);
-	square.y = static_cast<int>(screenCoords.y - 0.5f * h);
-	square.w = w;
-	square.h = h;
-
-	// Convert character orientation from radians to degrees
-	float orientation = body->getOrientation() * 180.0f / M_PI;
-
-	// Render the character with the texture, applying the rotation
-	SDL_RenderCopyEx(renderer, body->getTexture(), nullptr, &square,
-		orientation, nullptr, SDL_FLIP_NONE);
+    // Render the character with the texture
+    float orientation = body->getOrientation() * 180.0f / M_PI;  // Convert radians to degrees
+    SDL_RenderCopyEx(renderer, body->getTexture(), nullptr, &square, orientation, nullptr, SDL_FLIP_NONE);
 }
 
-bool Character::readDecisionTreeFromFile(string file_)
-{
-	// I'm faking it!!!!
-	// Here's where I would read XML from some file
-	// TODO: read XML
 
-	if (file_ == "blinky")
-	{
-		decisionTree = new Action(ACTION_SET::SEEK);
-		return true;
-	}
-	else if (file_ == "nearPlayer")
-	{
-		DecisionTreeNode* trueNode = new Action(ACTION_SET::SEEK);
-		DecisionTreeNode* falseNode = new Action(ACTION_SET::DO_NOTHING);
-		decisionTree = new PlayerInRange(trueNode, falseNode, this);
-		return true;
 
-	}
-	else if (file_ == "complexLogic") {
-		// Combine multiple decisions for SEEK, PURSUE, and EVADE
-		DecisionTreeNode* pursueNode = new Action(ACTION_SET::PURSUE); // Predict and follow
-		DecisionTreeNode* evadeNode = new Action(ACTION_SET::EVADE);   // Flee if too close
-		DecisionTreeNode* seekNode = new Action(ACTION_SET::SEEK);     // Move directly toward if far
+bool Character::readDecisionTreeFromFile(const std::string& file_) {
+    // Load the XML file
+    XMLDocument doc;
 
-		// Decision logic: PURSUE or EVADE based on proximity
-		DecisionTreeNode* pursueOrEvade = new PlayerInRange(evadeNode, pursueNode, this);
+    // If the file fails to load, print an error message and return false
+    if (doc.LoadFile(file_.c_str()) != XML_SUCCESS) {
+        std::cout << "Error loading XML file: " << file_ << std::endl;
+        return false;
+    }
 
-		// Set the decision tree to SEEK or PURSUE/EVADE based on finer proximity
-		decisionTree = new PlayerInRange(pursueOrEvade, seekNode, this);
-		return true;
-	}
-	return false;
+    // Analyze the root element of the XML file
+    XMLElement* root = doc.RootElement();
+    // Analyze the decision tree continuesly starting from the root element
+    decisionTree = AnalyzeDecisionTreeNode(root);
+    return decisionTree != nullptr;
 }
+
+DecisionTreeNode* Character::AnalyzeDecisionTreeNode(XMLElement* element) {
+    if (!element) {
+        return nullptr;
+    }
+
+    // Retrieve the 'type' attribute of the current node element
+    std::string type = element->Attribute("type");
+
+    // Debugging output if no 'type' attribute is found
+    if (type.empty()) {
+        std::cout << "Error: Missing 'type' attribute in node." << std::endl;
+        return nullptr;
+    }
+
+    // If the node type is "Action", put it in Action node
+    if (type == "Action") {
+        // Retrieve the 'value' attribute from the Action node
+        const char* valueStr = element->Attribute("value");
+        // Convert the string value to an integer and map it to an ACTION_SET value
+        ACTION_SET actionValue = static_cast<ACTION_SET>(std::stoi(valueStr));
+       
+        return new Action(actionValue);
+
+    }
+    else if (type == "PlayerInRange") {
+        // Get the TrueNode and FalseNode child elements for this PlayerInRange node
+        XMLElement* trueNodeElement = element->FirstChildElement("TrueNode");
+        XMLElement* falseNodeElement = element->FirstChildElement("FalseNode");
+
+        // Analyze the TrueNode and FalseNode elements
+        DecisionTreeNode* trueNode = AnalyzeDecisionTreeNode(trueNodeElement);
+        DecisionTreeNode* falseNode = AnalyzeDecisionTreeNode(falseNodeElement);
+
+        return new PlayerInRange(trueNode, falseNode, this);
+    }
+}
+
+
 

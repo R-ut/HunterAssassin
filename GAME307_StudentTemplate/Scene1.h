@@ -25,7 +25,6 @@
 using namespace MATH;
 class Scene1 : public Scene {
 private:
-private:
 	SDL_Window *window;
 	float xAxis = 25.0f;
 	float yAxis = 15.0f;
@@ -66,8 +65,6 @@ public:
 	//overridden work 
 	
 	const std::vector<Wall*>& getWalls() const;
-	void WallCollision(PlayerBody* player);
-	void WallCollision(KinematicBody* myNPC);
 	
 	void HandleEvents(const SDL_Event &event);
 	//Highlight the explored tiles as well as the path tiles

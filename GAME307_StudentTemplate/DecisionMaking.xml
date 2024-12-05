@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DecisionTree type="PlayerInRange">
+	<TrueNode type="Action" value="1"/>
+	<!-- SEEK -->
+	<FalseNode type="PlayerInRange">
+		<TrueNode type="Action" value="3"/>
+		<!-- EVADE -->
+		<FalseNode type="Action" value="2"/>
+		<!-- PURSUE -->
+	</FalseNode>
+</DecisionTree>

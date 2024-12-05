@@ -3,7 +3,14 @@
 
 #include "DecisionTreeNode.h"
 
-enum class ACTION_SET {DO_NOTHING, SEEK, PURSUE,EVADE, FLEE, ARRIVE};
+enum class ACTION_SET {
+    DO_NOTHING, 
+    SEEK,
+    PURSUE, 
+    EVADE, 
+    FLEE, 
+    ARRIVE
+};
 class Action :
     public DecisionTreeNode
 {

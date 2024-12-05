@@ -2,71 +2,69 @@
 #define CHARACTER_H
 
 #include <vector>
-
 #include "Scene.h"
 #include "KinematicBody.h"
-
 #include "Seek.h"
 #include "Evade.h"
 #include "Pursue.h"
 #include "Arrive.h"
 #include "Action.h"
+#include "tinyxml2.h"
 
 using namespace std;
+using namespace tinyxml2;
 
-class StateMachine;
-
-class Character
-{
+class Character {
 private:
-	class KinematicBody* body;
-	class Scene* scene;
+    KinematicBody* body;     // Character's kinematic body
+    Scene* scene;            // Scene the character is part of
+    DecisionTreeNode* decisionTree;  // Decision tree for AI behavior
 
-	DecisionTreeNode* decisionTree;
+    // Steering behaviors
+    void steerToSeekPlayer(SteeringOutput* steering);
+    void steerToEvadePlayer(SteeringOutput* steering);
+    void steerToPursuePlayer(SteeringOutput* steering);
+    void steerToArrivePlayer(SteeringOutput* steering);
 
-	void steerToSeekPlayer(SteeringOutput* steering);
-	void steerToEvadePlayer(SteeringOutput* steering);
-	void steerToPursuePlayer(SteeringOutput* steering);
-	void steerToArrivePlayer(SteeringOutput* steering);
-
-	Vec3 pos;   // Position of the character
-	Vec3 vel; 
-	float radius;
-	float scale;
+    // Position, velocity, and radius for rendering and movement
+    Vec3 pos;
+    Vec3 vel;
+    float radius;
+    float scale;
 
 public:
-	Character() : body(nullptr), scene(nullptr), decisionTree(nullptr), radius(1.0f), scale(1.0f) {}
+    // Constructor and Destructor
+    Character() : body(nullptr), scene(nullptr), decisionTree(nullptr), radius(1.0f), scale(1.0f) {}
+    ~Character() {}
 
+    // OnCreate and OnDestroy
+    bool OnCreate(Scene* scene_);
+    void OnDestroy();
 
-	~Character() {};
+    // Texture and Decision Tree handling
+    bool setTextureWith(const std::string& file);
+    bool readDecisionTreeFromFile(const std::string& file_);
+    DecisionTreeNode* AnalyzeDecisionTreeNode(XMLElement* element);
 
-	bool OnCreate(Scene* scene_);
-	void OnDestroy();
-	bool setTextureWith(string file);
-	void Update(float time);
-	void HandleEvents(const SDL_Event& event);
-	void render(const Vec3& cameraOffset, float scale = 1.0f) const;
-	bool readDecisionTreeFromFile(string file_);
-	Vec3 getPos() const { return body->getPos(); }
-	Vec3 getPlayerPos() const { return scene->game->getPlayer()->getPos(); }
+    // Getters and Setters
+    Vec3 getPos() const { return body->getPos(); }
+    Vec3 getPlayerPos() const { return scene->game->getPlayer()->getPos(); }
+    KinematicBody* getBody() const { return body; }
+    void setPos(const Vec3& newPos) { pos = newPos; }
+    Vec3 getVel() const { return vel; }
+    void setVel(const Vec3& newVel) { vel = newVel; }
+    float getRadius() const { return radius; }
+    void setRadius(float r) { radius = r; }
+    float getScale() const { return scale; }
+    void setScale(float newScale) { scale = newScale; }
 
-	KinematicBody* getBody() const { return body; }
+    // Update function
+    void Update(float time);
 
-	void setPos(const Vec3& newPos) { pos = newPos; }
-
-	// Getter for velocity
-	Vec3 getVel() const { return vel; }
-
-	// Setter for velocity
-	void setVel(const Vec3& newVel) { vel = newVel; }
-
-	float getRadius() const { return radius; }
-	void setRadius(float r) { radius = r; }
-
-	// New getter and setter for scale
-	float getScale() const { return scale; }
-
-	void setScale(float newScale) { scale = newScale; }
+    // Event handling and rendering
+    void HandleEvents(const SDL_Event& event);
+    void render(const Vec3& cameraOffset, float scale, const Matrix4& projectionMatrix, bool useCameraOffset) const;
+    //void render(const Vec3& cameraOffset, float scale = 1.0f) const;
 };
 
 #endif

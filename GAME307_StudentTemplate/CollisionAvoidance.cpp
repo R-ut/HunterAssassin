@@ -43,50 +43,6 @@ void CollisionAvoidance::HandlePlayerNPCollision(PlayerBody* player, KinematicBo
     }
 }
 
-void CollisionAvoidance::HandlePlayerNPCollision_(PlayerBody* player, Character* character_npc, SDL_Renderer* renderer)
-{
-   // static SDL_Texture* originalTexture = npc->getTexture(); // Store the original texture
-   // static bool isCollisionTexture = false; // Keep track of the current texture state
-
-    // Calculate the distance between the player and NPC
-    float pointDistance = VMath::mag(player->getPos() - character_npc->getPos());
-
-    // If they are within the collision distance, handle the collision
-    if (pointDistance < collisionDistance) {
-        // Load the collision texture if not already set
-       // if (!isCollisionTexture) {
-            //SDL_Surface* collisionImage = IMG_Load("Inky.png");
-            //if (!collisionImage) {
-            //    std::cerr << "Failed to load collision image: " << IMG_GetError() << std::endl;
-            //    return;
-            //}
-            //SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
-            //SDL_FreeSurface(collisionImage);  // Free the surface after creating the texture
-
-            // Change NPC texture to the collision texture
-          //  npc->setTexture(collisionTexture);
-            //isCollisionTexture = true; // Mark as collision texture
-        //}
-
-        // Calculate new direction for NPC to move away
-        Vec3 newDirection_ = VMath::normalize(character_npc->getPos() - player->getPos());
-
-        // Move NPC to a new position to prevent overlapping
-        Vec3 newPosition_ = character_npc->getPos() + newDirection_ * (collisionDistance - pointDistance);
-        character_npc->setPos(newPosition_);
-
-        // Set NPC velocity in the new direction
-        character_npc->setVel(newDirection_);
-    }
-    //else {
-    //    // Reset to the original texture if no collision
-    //    if (isCollisionTexture) {
-    //       // npc->setTexture(originalTexture); // Revert to original texture
-    //        isCollisionTexture = false; // Mark as original texture
-    //    }
-    //}
-}
-
 void CollisionAvoidance::HandlePlayerWallCollision(PlayerBody* player, const std::vector<Wall*>& walls) {
     Vec3 playerPos = player->getPos();
     float playerWidth = 1.0f;  // Player width
@@ -111,22 +67,6 @@ void CollisionAvoidance::HandleNPCWallCollision(KinematicBody* npc, const std::v
 
     npc->setPos(npcPos);
     npc->setVel(npcVel);
-}
-
-void CollisionAvoidance::HandleNPCWallCollision_(Character* character_npc, const std::vector<Wall*>& walls)
-{
-    Vec3 npcPos_ = character_npc->getPos();
-    Vec3 npcVel_ = character_npc->getVel();
-    float npcWidth_ = 1.0f;  // NPC width
-    float npcHeight_ = 1.0f; // NPC height
-
-    for (const Wall* wall : walls) {
-        ResolveWallCollision(npcPos_, npcWidth_, npcHeight_, wall);
-    }
-
-    character_npc->setPos(npcPos_);
-    character_npc->setVel(npcVel_);
-   
 }
 
 void CollisionAvoidance::ResolveWallCollision(Vec3& position, float width, float height, const Wall* wall) {
@@ -166,3 +106,69 @@ void CollisionAvoidance::ResolveWallCollision(Vec3& position, float width, float
         }
     }
 }
+
+void CollisionAvoidance::HandlePlayerEnemyCollision(PlayerBody* player, Character* enemy, SDL_Renderer* renderer, const Vec3& cameraOffset) {
+    if (!player || !enemy) {
+        std::cerr << "Error: player or enemy is nullptr in HandlePlayerEnemyCollision" << std::endl;
+        return;
+    }
+
+    // Adjust positions for the camera offset
+    Vec3 adjustedPlayerPos = player->getPos() - cameraOffset;
+    Vec3 adjustedEnemyPos = enemy->getPos() - cameraOffset;
+
+    // Bounding box dimensions
+    float playerWidth = 1.0f, playerHeight = 1.0f;
+    float enemyWidth = 0.5f, enemyHeight = 0.5f;
+
+    // Check for collision using axis-aligned bounding boxes (AABB)
+    bool xOverlap = (adjustedPlayerPos.x < adjustedEnemyPos.x + enemyWidth) &&
+        (adjustedPlayerPos.x + playerWidth > adjustedEnemyPos.x);
+    bool yOverlap = (adjustedPlayerPos.y < adjustedEnemyPos.y + enemyHeight) &&
+        (adjustedPlayerPos.y + playerHeight > adjustedEnemyPos.y);
+
+    static SDL_Texture* originalTexture = enemy->getBody()->getTexture();
+    static bool isCollisionTexture = false;
+
+    if (xOverlap && yOverlap) {
+        // Collision detected
+        std::cout << "Collision detected between Player and Enemy!" << std::endl;
+
+        if (!isCollisionTexture) {
+            // Change enemy's texture to indicate collision
+            SDL_Surface* collisionImage = IMG_Load("Pinky.png");
+            if (!collisionImage) {
+                std::cerr << "Failed to load collision image: " << IMG_GetError() << std::endl;
+                return;
+            }
+            SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
+            SDL_FreeSurface(collisionImage);
+
+            if (collisionTexture) {
+                enemy->getBody()->setTexture(collisionTexture);
+                isCollisionTexture = true;
+            }
+        }
+    }
+    else {
+        // No collision, reset texture
+        if (isCollisionTexture && originalTexture) {
+            enemy->getBody()->setTexture(originalTexture);
+            isCollisionTexture = false;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

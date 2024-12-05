@@ -1,5 +1,6 @@
 #include "GameManager.h"
 #include "Scene1.h"
+#include "Scene2.h"
 #include "PlayerBody.h"
 GameManager::GameManager() {
 	windowPtr = nullptr;
@@ -37,7 +38,9 @@ bool GameManager::OnCreate() {
 
     // select scene for specific assignment
 
-    currentScene = new Scene1(windowPtr->GetSDL_Window(), this);
+ 
+        currentScene = new Scene2(windowPtr->GetSDL_Window(), this); // Initialize the first scene
+  
     
     // create player
     float mass = 1.0f;
@@ -119,6 +122,7 @@ void GameManager::Run() {
 	}
 }
 
+
 void GameManager::handleEvents()
 {
 	SDL_Event event;
@@ -174,8 +178,13 @@ void GameManager::OnDestroy(){
 float GameManager::getSceneHeight() const
 { return currentScene->getyAxis(); }
 
-float GameManager::getSceneWidth() const
-{ return currentScene->getxAxis(); }
+float GameManager::getSceneWidth() const {
+    if (!currentScene) {
+        std::cerr << "Error: currentScene is nullptr in getSceneWidth().\n";
+        return 0.0f; // Return a default width if no scene is active
+    }
+    return currentScene->getxAxis();
+}
 
 Matrix4 GameManager::getProjectionMatrix() const
 { return currentScene->getProjectionMatrix(); }
@@ -194,26 +203,19 @@ void GameManager::RenderPlayer(float scale)
    
 }
 
-void GameManager::LoadScene( int i )
-{
-    // cleanup of current scene before loading anothe one
-    currentScene->OnDestroy();
-    delete currentScene;
-    switch ( i )
-    {
-        case 1:
-            currentScene = new Scene1( windowPtr->GetSDL_Window(), this);
-            break;
-        default:
-            currentScene = new Scene1( windowPtr->GetSDL_Window(), this );
-            break;
+void GameManager::LoadScene(int sceneID) {
+    if (currentScene) {
+        currentScene->OnDestroy();
+        delete currentScene;
+        currentScene = nullptr; // Avoid dangling pointers
     }
-    // using ValidateCurrentScene() to safely run OnCreate
-    if (!ValidateCurrentScene())
-    {
-        isRunning = false;
+
+    if (sceneID == 1) {
+        currentScene = new Scene1(windowPtr->GetSDL_Window(), this);
     }
-    launched = true;
+    else if (sceneID == 2) {
+        currentScene = new Scene2(windowPtr->GetSDL_Window(), this);
+    }
 }
 
 bool GameManager::ValidateCurrentScene()

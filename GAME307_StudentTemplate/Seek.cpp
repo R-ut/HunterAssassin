@@ -8,14 +8,14 @@ Seek::Seek(const Body* npc_, const Body* target_) {
 }
 
 Seek::~Seek() {
-   // delete result; // Clean up memory
+    // Destructor left empty for now
 }
 
 SteeringOutput* Seek::getSteering() {
     // Get direction to target
     result->linear = target->getPos() - npc->getPos();
 
-    // Accelerate in that direction
+    // Normalize direction and apply maximum acceleration
     result->linear = VMath::normalize(result->linear) * npc->getMaxAcceleration();
     result->angular = 0.0f;
 

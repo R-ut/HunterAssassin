@@ -114,7 +114,8 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 
-	if(!Enemy1->readDecisionTreeFromFile("complexLogic") ){
+	if (!Enemy1->readDecisionTreeFromFile("DecisionMaking.xml")) { 
+		std::cerr << "Failed to load decision tree for Enemy1\n";
 		return false;
 	}
 	
@@ -125,8 +126,8 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 
-	if (!Enemy2->readDecisionTreeFromFile("nearPlayer")) {
-
+	if (!Enemy2->readDecisionTreeFromFile("nearPlayer.xml")) { 
+		std::cerr << "Failed to load decision tree for Enemy2\n";
 		return false;
 	}
 
@@ -223,10 +224,10 @@ void Scene1::OnDestroy()
 		delete Enemy1;
 	}
 
-	/*if (Enemy2) {
+	if (Enemy2) {
 		Enemy2->OnDestroy();
 		delete Enemy2;
-	}*/
+	}
 	if (graph) {
 		graph->~Graph();
 	}
@@ -292,7 +293,7 @@ void Scene1::Update(const float deltaTime) {
 
 	// Calculate and apply any steering for npc's
 	//Enemy1->Update(deltaTime);
-	//Enemy2->Update(deltaTime);
+	Enemy2->Update(deltaTime);
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 	Node* startNode = tiles[npcY][npcX]->getNode();
@@ -354,8 +355,6 @@ void Scene1::Update(const float deltaTime) {
 		myNPC->setPos(position);
 		myNPC->setVel(velocity);
 
-		// Update myNPC with steering (if applicable)
-		//myNPC->Update(deltaTime, nullptr); // Assuming steering is managed elsewhere
 	}
 
 	// Update Enemy1
@@ -378,27 +377,22 @@ void Scene1::Update(const float deltaTime) {
 		float minY = radius;
 		float maxY = sceneHeight - radius;
 
-		// Minimum rebound velocity to avoid zero velocity
-		const float minReboundVelocity = 0.5f;
-
-		// X-axis boundary check
 		if (position.x < minX) {
 			position.x = minX;
-			velocity.x = std::max(-velocity.x, minReboundVelocity); // Reverse X velocity
+			velocity.x = -velocity.x; // Reverse velocity
 		}
 		else if (position.x > maxX) {
 			position.x = maxX;
-			velocity.x = std::min(-velocity.x, -minReboundVelocity); // Reverse X velocity
+			velocity.x = -velocity.x; // Reverse velocity
 		}
 
-		// Y-axis boundary check
 		if (position.y < minY) {
 			position.y = minY;
-			velocity.y = std::max(-velocity.y, minReboundVelocity); // Reverse Y velocity
+			velocity.y = -velocity.y; // Reverse velocity
 		}
 		else if (position.y > maxY) {
 			position.y = maxY;
-			velocity.y = std::min(-velocity.y, -minReboundVelocity); // Reverse Y velocity
+			velocity.y = -velocity.y; // Reverse velocity
 		}
 
 		// Update Enemy1's position and velocity after boundary checks
@@ -414,10 +408,6 @@ void Scene1::Update(const float deltaTime) {
 		if (myNPC) {
 			collisionAvoidance.HandlePlayerNPCollision(player, myNPC, renderer);
 			collisionAvoidance.HandleNPCWallCollision(myNPC, walls);
-		}
-		if (Enemy1) {
-			collisionAvoidance.HandlePlayerNPCollision_(player, Enemy1, renderer);
-			collisionAvoidance.HandleNPCWallCollision_(Enemy1, walls);
 		}
 	}
 
@@ -453,11 +443,15 @@ void Scene1::Render() {
 	}
 	
 
-	// Render NPCs
+	 //Render NPCs
 	if (Enemy1) {
-		Enemy1->render(cameraOffset, 5.10f);
+		Enemy1->render(cameraOffset, 5.15f, projectionMatrix, false); // Use `body->getPos()`
 	}
-	if (Enemy2) Enemy2->render(cameraOffset, 0.15f);
+
+	// Manually render Enemy 2 without camera offset
+	if (Enemy2) {
+		Enemy2->render(cameraOffset, 0.15f, projectionMatrix, true); // Use `body->getPos()`
+	}
 
 	
 	renderMyNPC();

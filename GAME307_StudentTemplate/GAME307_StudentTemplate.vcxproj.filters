@@ -64,6 +64,8 @@
     </ClCompile>
     <ClCompile Include="Flocking.cpp" />
     <ClCompile Include="BlendedSteering.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\Users\laksh\Downloads\tinyxml2.cpp" />
+    <ClCompile Include="Scene2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
@@ -130,6 +132,8 @@
     </ClInclude>
     <ClInclude Include="Flocking.h" />
     <ClInclude Include="BlendedSteering.h" />
+    <ClInclude Include="..\..\..\..\..\..\Users\laksh\Downloads\tinyxml2.h" />
+    <ClInclude Include="Scene2.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Steering">
@@ -144,5 +148,13 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GAME307_StudentTemplate.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="DecisionMaking.xml">
+      <Filter>DecisionMaking</Filter>
+    </Xml>
+    <Xml Include="nearPlayer.xml">
+      <Filter>DecisionMaking</Filter>
+    </Xml>
   </ItemGroup>
 </Project>
