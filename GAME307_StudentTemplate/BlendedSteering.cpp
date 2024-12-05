@@ -1,7 +1,6 @@
 #include "BlendedSteering.h"
 #include "VMath.h"
 
-
 void BlendedSteering::addBehavior(std::shared_ptr<SteeringBehaviour> behavior, float weight) {
     behaviors.push_back({ behavior, weight });
 }
@@ -13,12 +12,9 @@ SteeringOutput* BlendedSteering::getSteering() {
         SteeringOutput* steering = bw.behavior->getSteering();
         result->linear += steering->linear * bw.weight;
         result->angular += steering->angular * bw.weight;
-        delete steering;
+        delete steering; // Clean up dynamically allocated memory
     }
-    // Inline limit for linear acceleration
-    float maxAcceleration = 10.0f; // Example value
-    float magnitude = VMath::mag(result->linear);
-    if (magnitude > maxAcceleration) {
+    if (VMath::mag(result->linear) > maxAcceleration) {
         result->linear = VMath::normalize(result->linear) * maxAcceleration;
     }
     return result;

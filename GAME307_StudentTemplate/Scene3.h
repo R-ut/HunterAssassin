@@ -31,15 +31,38 @@ private:
     SDL_Renderer* renderer;
     Matrix4 projectionMatrix;
     Matrix4     inverseProjection;
+
     std::vector<Wall*> walls; // Vector to store wall object
     SDL_Texture* backgroundTexture;  // Background texture
+
+    // Enemy characters
     Character* enemy1;
     Character* enemy2;
     Character* enemy3;
     Character* enemy4;
+
+	// Camera offset
     Vec3 cameraOffset;
     CollisionAvoidance* collisionAvoidance;
 
+    // Flocking and Blended Steering
+    std::vector<KinematicBody*> flockNeighbors;
+    Flocking* flockingBehavior1;
+    Flocking* flockingBehavior2;
+    Flocking* flockingBehavior3;
+    Flocking* flockingBehavior4;
+
+	BlendedSteering* blendedSteering1;
+	BlendedSteering* blendedSteering2;
+	BlendedSteering* blendedSteering3;
+	BlendedSteering* blendedSteering4;
+  
+
+    // Debugging
+    bool isFlockingEnabled; // Flag to toggle flocking
+
+    // Utility for drawing debug vectors
+    void DrawDebugVector(Vec3 start, Vec3 direction, SDL_Color color);
 
 public:
     Scene3(SDL_Window* sdlWindow_, GameManager* game_);
@@ -52,6 +75,8 @@ public:
     void HandleEnemyWallCollision_(Character* enemy);
     void Render() override;
     void HandleEvents(const SDL_Event& event) override;
+
+    // Accessor functions
     const std::vector<Wall*>& getWalls() const;
     float getxAxis() { return xAxis; }
     float getyAxis() { return yAxis; }

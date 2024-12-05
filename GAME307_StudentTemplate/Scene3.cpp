@@ -16,10 +16,33 @@ Scene3::Scene3(SDL_Window* sdlWindow_, GameManager* game_) {
     enemy2 = nullptr;
     enemy3 = nullptr;
     enemy4 = nullptr;
+
+  //  flockingBehavior = nullptr;
+    flockingBehavior1 = nullptr;
+    flockingBehavior2 = nullptr;
+    flockingBehavior3 = nullptr;
+    flockingBehavior4 = nullptr;
+  
+    blendedSteering1 = nullptr;
+    blendedSteering2 = nullptr;
+    blendedSteering3 = nullptr;
+    blendedSteering4 = nullptr;
+
+    isFlockingEnabled = true; // Flocking is enabled by default
 }
 
 Scene3::~Scene3() {}
 
+void Scene3::DrawDebugVector(Vec3 start, Vec3 direction, SDL_Color color) {
+    Vec3 end = start + direction;
+
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawLine(renderer,
+        static_cast<int>(start.x - cameraOffset.x),
+        static_cast<int>(start.y - cameraOffset.y),
+        static_cast<int>(end.x - cameraOffset.x),
+        static_cast<int>(end.y - cameraOffset.y));
+}
 bool Scene3::OnCreate() {
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
@@ -74,6 +97,29 @@ bool Scene3::OnCreate() {
     }
     enemy4->getBody()->setPos(Vec3(xAxis - 2.0f, yAxis - 2.0f, 0.0f)); // top-right corner
 
+    // Set up flocking and blended steering
+    flockNeighbors.push_back(enemy1->getBody());
+    flockNeighbors.push_back(enemy2->getBody());
+    flockNeighbors.push_back(enemy3->getBody());
+    flockNeighbors.push_back(enemy4->getBody());
+
+    flockingBehavior1 = new Flocking(enemy1->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
+    flockingBehavior2 = new Flocking(enemy2->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
+    flockingBehavior3 = new Flocking(enemy3->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
+    flockingBehavior4 = new Flocking(enemy4->getBody(), flockNeighbors, 1.0f, 1.0f, 1.0f);
+
+    // Set up blended steering
+    blendedSteering1 = new BlendedSteering(enemy1->getBody());
+    blendedSteering1->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior1), 1.0f);
+
+    blendedSteering2 = new BlendedSteering(enemy2->getBody());
+    blendedSteering2->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior2), 1.0f);
+
+    blendedSteering3 = new BlendedSteering(enemy3->getBody());
+    blendedSteering3->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior3), 1.0f);
+
+    blendedSteering4 = new BlendedSteering(enemy4->getBody());
+    blendedSteering4->addBehavior(std::shared_ptr<SteeringBehaviour>(flockingBehavior4), 1.0f);
 
     float wallWidth = 1.57f;  // Increased width for better visibility
     float wallHeight = 1.57f; // Increased height for better visibility
@@ -193,6 +239,42 @@ void Scene3::OnDestroy() {
         delete wall;
     }
     walls.clear();
+
+    // Clean up flocking and blended steering for each enemy
+    if (flockingBehavior1) {
+        delete flockingBehavior1;
+        flockingBehavior1 = nullptr;
+    }
+    if (flockingBehavior2) {
+        delete flockingBehavior2;
+        flockingBehavior2 = nullptr;
+    }
+    if (flockingBehavior3) {
+        delete flockingBehavior3;
+        flockingBehavior3 = nullptr;
+    }
+    if (flockingBehavior4) {
+        delete flockingBehavior4;
+        flockingBehavior4 = nullptr;
+    }
+
+    if (blendedSteering1) {
+        delete blendedSteering1;
+        blendedSteering1 = nullptr;
+    }
+    if (blendedSteering2) {
+        delete blendedSteering2;
+        blendedSteering2 = nullptr;
+    }
+    if (blendedSteering3) {
+        delete blendedSteering3;
+        blendedSteering3 = nullptr;
+    }
+    if (blendedSteering4) {
+        delete blendedSteering4;
+        blendedSteering4 = nullptr;
+    }
+
 }
 void Scene3::Update(float deltaTime) {
     // Update camera offset to follow the player
@@ -215,6 +297,24 @@ void Scene3::Update(float deltaTime) {
     HandleEnemyWallCollision_(enemy3);
     HandleEnemyWallCollision(enemy4, cameraOffset);
 
+    // Update enemies with flocking and blended steering if enabled
+    if (isFlockingEnabled) {
+        auto updateEnemySteering = [&](Character* enemy, BlendedSteering* blendedSteering) {
+            if (enemy && blendedSteering) {
+                SteeringOutput* steering = blendedSteering->getSteering();
+                Vec3 velocity = enemy->getBody()->getVel() + steering->linear * deltaTime;
+                enemy->getBody()->setVel(velocity);
+                Vec3 position = enemy->getBody()->getPos() + velocity * deltaTime;
+                enemy->getBody()->setPos(position);
+                delete steering;
+            }
+            };
+
+        updateEnemySteering(enemy1, blendedSteering1);
+        updateEnemySteering(enemy2, blendedSteering2);
+        updateEnemySteering(enemy3, blendedSteering3);
+        updateEnemySteering(enemy4, blendedSteering4);
+    }
     // Update decision - making and positions for each enemy
     if (enemy1) enemy1->Update(deltaTime);
     if (enemy2) enemy2->Update(deltaTime);
@@ -364,7 +464,7 @@ void Scene3::Render() {
     bgRect.w = static_cast<int>(xAxis);
     bgRect.h = static_cast<int>(yAxis);
 
-    if (enemy1) {
+  /*  if (enemy1) {
         enemy1->render(cameraOffset, 0.15f, projectionMatrix, false);
     }
 
@@ -381,21 +481,59 @@ void Scene3::Render() {
 
     if (enemy4) {
         enemy4->render(cameraOffset, 0.15f, projectionMatrix, false);
-    }
+    }*/
 
-    // Render the player
-    game->RenderPlayer(5.0f);
+    
+
+
+    
 
     // Render walls
     for (Wall* wall : walls) {
         wall->Render(projectionMatrix, cameraOffset);
     }
 
+    // Render enemies and debug vectors
+    for (auto enemy : { enemy1, enemy2, enemy3, enemy4 }) {
+        if (enemy) {
+            enemy->render(cameraOffset, 0.15f, projectionMatrix, false);
+
+            // Draw debug vectors for flocking forces
+            if (isFlockingEnabled) {
+                Flocking* behavior = nullptr;
+
+                if (enemy == enemy1) behavior = flockingBehavior1;
+                else if (enemy == enemy2) behavior = flockingBehavior2;
+                else if (enemy == enemy3) behavior = flockingBehavior3;
+                else if (enemy == enemy4) behavior = flockingBehavior4;
+
+                if (behavior) {
+                    Vec3 separation = behavior->calculateSeparation();
+                    Vec3 alignment = behavior->calculateAlignment();
+                    Vec3 cohesion = behavior->calculateCohesion();
+
+                    DrawDebugVector(enemy->getBody()->getPos(), separation, { 255, 0, 0, 255 }); // Red for separation
+                    DrawDebugVector(enemy->getBody()->getPos(), alignment, { 0, 255, 0, 255 }); // Green for alignment
+                    DrawDebugVector(enemy->getBody()->getPos(), cohesion, { 0, 0, 255, 255 });  // Blue for cohesion
+                }
+            }
+        }
+    }
+
+    // Render the player
+    game->RenderPlayer(5.0f);
+
     SDL_RenderPresent(renderer);
 }
 void Scene3::HandleEvents(const SDL_Event& event) {
     // Pass events to the player
     game->getPlayer()->HandleEvents(event);
+
+    // Handle toggling flocking with the 'F' key
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f) {
+        isFlockingEnabled = !isFlockingEnabled;
+        std::cout << (isFlockingEnabled ? "Flocking Enabled" : "Flocking Disabled") << std::endl;
+    }
 }
 
 

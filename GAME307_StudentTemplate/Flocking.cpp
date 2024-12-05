@@ -12,7 +12,7 @@ SteeringOutput* Flocking::getSteering() {
     steering->linear = separation + alignment + cohesion;
     steering->angular = 0.0f;
 
-    return steering;
+    return steering; // Return a pointer
 }
 
 Vec3 Flocking::calculateSeparation() {
@@ -20,12 +20,10 @@ Vec3 Flocking::calculateSeparation() {
     for (auto neighbor : neighbors) {
         Vec3 diff = character->getPos() - neighbor->getPos();
         float distance = VMath::mag(diff);
-        if (distance > 0.0f && distance < 5.0f) {  // Threshold distance
+        if (distance > 0.0f && distance < separationThreshold) {  // Parameterized threshold
             force += VMath::normalize(diff) / distance;
         }
     }
-    // Inline limit for separation
-    float maxSeparation = 5.0f;
     if (VMath::mag(force) > maxSeparation) {
         force = VMath::normalize(force) * maxSeparation;
     }
@@ -41,13 +39,9 @@ Vec3 Flocking::calculateAlignment() {
         averageVelocity /= static_cast<float>(neighbors.size());
     }
     Vec3 alignmentForce = averageVelocity - character->getVel();
-
-    // Inline limit for alignment
-    float maxAlignment = 3.0f;
     if (VMath::mag(alignmentForce) > maxAlignment) {
         alignmentForce = VMath::normalize(alignmentForce) * maxAlignment;
     }
-
     return alignmentForce;
 }
 
@@ -60,12 +54,8 @@ Vec3 Flocking::calculateCohesion() {
         centerOfMass /= static_cast<float>(neighbors.size());
     }
     Vec3 cohesionForce = centerOfMass - character->getPos();
-
-    // Inline limit for cohesion
-    float maxCohesion = 4.0f;
     if (VMath::mag(cohesionForce) > maxCohesion) {
         cohesionForce = VMath::normalize(cohesionForce) * maxCohesion;
     }
-
     return cohesionForce;
 }
