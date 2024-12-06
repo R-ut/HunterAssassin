@@ -3,5 +3,5 @@
 	<TrueNode type="Action" value="1"/>
 	<!-- SEEK -->
 	<FalseNode type="Action" value="0"/>
-	<!-- DO_NOTHING (Stand still) -->
+	<!-- DO_NOTHING -->
 </DecisionTree>

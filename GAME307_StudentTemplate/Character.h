@@ -10,12 +10,14 @@
 #include "Arrive.h"
 #include "Action.h"
 #include "tinyxml2.h"
+#include "Flee.h"
 
 using namespace std;
 using namespace tinyxml2;
 
 class Character {
 private:
+
     KinematicBody* body;     // Character's kinematic body
     Scene* scene;            // Scene the character is part of
     DecisionTreeNode* decisionTree;  // Decision tree for AI behavior
@@ -25,6 +27,8 @@ private:
     void steerToEvadePlayer(SteeringOutput* steering);
     void steerToPursuePlayer(SteeringOutput* steering);
     void steerToArrivePlayer(SteeringOutput* steering);
+
+    void steerToFleePlayer(SteeringOutput* steering);
 
     // Position, velocity, and radius for rendering and movement
     Vec3 pos;
@@ -45,7 +49,7 @@ public:
     bool setTextureWith(const std::string& file);
     bool readDecisionTreeFromFile(const std::string& file_);
     DecisionTreeNode* AnalyzeDecisionTreeNode(XMLElement* element);
-
+  
     // Getters and Setters
     Vec3 getPos() const { return body->getPos(); }
     Vec3 getPlayerPos() const { return scene->game->getPlayer()->getPos(); }

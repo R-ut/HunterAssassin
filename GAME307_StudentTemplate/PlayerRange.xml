@@ -2,9 +2,9 @@
 <DecisionTree type="PlayerInRange">
 	<TrueNode type="Action" value="1"/>
 	<!-- SEEK -->
-	<FalseNode type="PlayerInRange">
-		<TrueNode type="Action" value="3"/>
-		<!-- EVADE -->
+	<FalseNode type="PlayerCloseRange">
+		<TrueNode type="Action" value="4"/>
+		<!-- ARRIVE -->
 		<FalseNode type="Action" value="2"/>
 		<!-- PURSUE -->
 	</FalseNode>

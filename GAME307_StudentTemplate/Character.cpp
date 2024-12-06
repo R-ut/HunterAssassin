@@ -1,9 +1,10 @@
 #include "Character.h"
 #include "PlayerInRange.h"
+#include "PlayerCloseRange.h"
+#include "PlayerFarRange.h"
 #include "tinyxml2.h"
 
 using namespace tinyxml2;
-
 bool Character::OnCreate(Scene* scene_) {
     scene = scene_;
 
@@ -13,7 +14,7 @@ bool Character::OnCreate(Scene* scene_) {
         float orientation = 0.0f;
         float rotation = 0.0f;
         float angular = 0.0f;
-        float maxSpeed = 3.0f;
+        float maxSpeed = 5.0f;
         float maxAcceleration = 10.0f;
         float maxRotation = 2.0f;
         float maxAngular = 10.0f;
@@ -96,6 +97,17 @@ void Character::steerToArrivePlayer(SteeringOutput* steering) {
     delete steering_algorithm;
 }
 
+void Character::steerToFleePlayer(SteeringOutput* steering) {
+    // Create a Flee behavior, passing the body and the player as the target
+    SteeringBehaviour* steering_algorithm = new Flee(body, scene->game->getPlayer());
+    *steering += *(steering_algorithm->getSteering());
+    delete steering_algorithm;
+}
+
+
+
+
+
 void Character::Update(float deltaTime) {
     SteeringOutput* steering = new SteeringOutput();
 
@@ -116,6 +128,9 @@ void Character::Update(float deltaTime) {
         case ACTION_SET::ARRIVE:
             steerToArrivePlayer(steering);
             break;
+        case ACTION_SET::FLEE:
+			steerToFleePlayer(steering);
+			break;
         case ACTION_SET::DO_NOTHING:
             steering->linear = Vec3(0.0f, 0.0f, 0.0f);
             //steering->angular = 0.0f;
@@ -141,10 +156,6 @@ void Character::Update(float deltaTime) {
     // Apply updates
     body->setPos(position);
     body->setVel(velocity);
-
-    // Debugging: Log position and velocity
-    std::cout << "Enemy Position: " << position.x << ", " << position.y << "\n";
-    std::cout << "Enemy Velocity: " << velocity.x << ", " << velocity.y << "\n";
 
     // Clean up steering output
     delete steering;
@@ -242,6 +253,26 @@ DecisionTreeNode* Character::AnalyzeDecisionTreeNode(XMLElement* element) {
         DecisionTreeNode* falseNode = AnalyzeDecisionTreeNode(falseNodeElement);
 
         return new PlayerInRange(trueNode, falseNode, this);
+    }
+
+    else if (type == "PlayerCloseRange") {
+        XMLElement* trueNodeElement = element->FirstChildElement("TrueNode");
+        XMLElement* falseNodeElement = element->FirstChildElement("FalseNode");
+
+        DecisionTreeNode* trueNode = AnalyzeDecisionTreeNode(trueNodeElement);
+        DecisionTreeNode* falseNode = AnalyzeDecisionTreeNode(falseNodeElement);
+
+        return new PlayerCloseRange(trueNode, falseNode, this);
+    }
+
+    else if (type == "PlayerFarRange") {
+        XMLElement* trueNodeElement = element->FirstChildElement("TrueNode");
+        XMLElement* falseNodeElement = element->FirstChildElement("FalseNode");
+
+        DecisionTreeNode* trueNode = AnalyzeDecisionTreeNode(trueNodeElement);
+        DecisionTreeNode* falseNode = AnalyzeDecisionTreeNode(falseNodeElement);
+
+        return new PlayerFarRange(trueNode, falseNode, this);
     }
 }
 

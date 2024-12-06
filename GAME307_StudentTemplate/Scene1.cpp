@@ -12,7 +12,6 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	// create a NPC
 	myNPC = NULL;
 	Enemy1 = nullptr;
-	Enemy2 = nullptr;
 }
 
 Scene1::~Scene1() {}
@@ -114,23 +113,6 @@ bool Scene1::OnCreate() {
 		return false;
 	}
 
-	if (!Enemy1->readDecisionTreeFromFile("DecisionMaking.xml")) { 
-		std::cerr << "Failed to load decision tree for Enemy1\n";
-		return false;
-	}
-	
-	// Just for Testing for now
-	Enemy2 = new Character();
-	if (!Enemy2->OnCreate(this) || !Enemy2->setTextureWith("Blinky.png"))
-	{
-		return false;
-	}
-
-	if (!Enemy2->readDecisionTreeFromFile("nearPlayer.xml")) { 
-		std::cerr << "Failed to load decision tree for Enemy2\n";
-		return false;
-	}
-
 	// Create neighbors for flocking
 	// flockingNeighbors = { Enemy1->getBody(), Enemy2->getBody() }; // Populate with NPCs
 	// Set up the graph
@@ -218,16 +200,6 @@ void Scene1::OnDestroy()
 		SDL_DestroyTexture(backgroundTexture);
 		backgroundTexture = nullptr;
 	}
-	if (Enemy1)
-	{
-		Enemy1->OnDestroy();
-		delete Enemy1;
-	}
-
-	if (Enemy2) {
-		Enemy2->OnDestroy();
-		delete Enemy2;
-	}
 	if (graph) {
 		graph->~Graph();
 	}
@@ -291,9 +263,6 @@ void Scene1::Update(const float deltaTime) {
 	//// Clean up
 	//delete steering;
 
-	// Calculate and apply any steering for npc's
-	//Enemy1->Update(deltaTime);
-	Enemy2->Update(deltaTime);
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 	Node* startNode = tiles[npcY][npcX]->getNode();
@@ -357,60 +326,6 @@ void Scene1::Update(const float deltaTime) {
 
 	}
 
-	// Update Enemy1
-	if (Enemy1) {
-
-		// Debugging: Log initial position and velocity
-		Vec3 position = Enemy1->getPos();
-		Vec3 velocity = Enemy1->getVel();
-
-		// Update Enemy1's behavior
-		Enemy1->Update(deltaTime);
-
-		// Apply boundary checks
-		float radius = Enemy1->getRadius();
-		float sceneWidth = game->getSceneWidth();
-		float sceneHeight = game->getSceneHeight();
-
-		float minX = radius;
-		float maxX = sceneWidth - radius;
-		float minY = radius;
-		float maxY = sceneHeight - radius;
-
-		if (position.x < minX) {
-			position.x = minX;
-			velocity.x = -velocity.x; // Reverse velocity
-		}
-		else if (position.x > maxX) {
-			position.x = maxX;
-			velocity.x = -velocity.x; // Reverse velocity
-		}
-
-		if (position.y < minY) {
-			position.y = minY;
-			velocity.y = -velocity.y; // Reverse velocity
-		}
-		else if (position.y > maxY) {
-			position.y = maxY;
-			velocity.y = -velocity.y; // Reverse velocity
-		}
-
-		// Update Enemy1's position and velocity after boundary checks
-		Enemy1->setPos(position);
-		Enemy1->setVel(velocity);
-
-	}
-
-	// Handle collisions
-	PlayerBody* player = dynamic_cast<PlayerBody*>(game->getPlayer());
-	if (player) {
-		collisionAvoidance.HandlePlayerWallCollision(player, walls);
-		if (myNPC) {
-			collisionAvoidance.HandlePlayerNPCollision(player, myNPC, renderer);
-			collisionAvoidance.HandleNPCWallCollision(myNPC, walls);
-		}
-	}
-
 	// Update player
 	if (game->getPlayer()) {
 		game->getPlayer()->Update(deltaTime);
@@ -441,18 +356,6 @@ void Scene1::Render() {
 	for (Wall* wall : walls) {
 		wall->Render(projectionMatrix, cameraOffset);
 	}
-	
-
-	 //Render NPCs
-	if (Enemy1) {
-		Enemy1->render(cameraOffset, 5.15f, projectionMatrix, false); // Use `body->getPos()`
-	}
-
-	// Manually render Enemy 2 without camera offset
-	if (Enemy2) {
-		Enemy2->render(cameraOffset, 0.15f, projectionMatrix, true); // Use `body->getPos()`
-	}
-
 	
 	renderMyNPC();
 	// render the player
@@ -566,11 +469,3 @@ void Scene1::addWallToGraph(int tileX, int tileY) {
 	// Mark the tile as a wall for rendering
 	tiles[tileY][tileX]->setWall(true);
 }
- 
-//Overridden work
-/*
-const std::vector<Wall*>& Scene1::getWalls() const
-{
-	return walls;
-}
-*/

@@ -43,69 +43,66 @@ void CollisionAvoidance::HandlePlayerNPCollision(PlayerBody* player, KinematicBo
     }
 }
 
-void CollisionAvoidance::HandlePlayerWallCollision(PlayerBody* player, const std::vector<Wall*>& walls) {
+void CollisionAvoidance::HandlePlayerWallCollision(PlayerBody* player, const std::vector<Wall*>& walls, const Vec3& cameraOffset) {
     Vec3 playerPos = player->getPos();
     float playerWidth = 1.0f;  // Player width
     float playerHeight = 1.0f; // Player height
 
     for (const Wall* wall : walls) {
-        ResolveWallCollision(playerPos, playerWidth, playerHeight, wall);
-    }
+        ResolveWallCollision(playerPos, playerWidth, playerHeight, wall, cameraOffset);
 
-    player->setPos(playerPos);
+        player->setPos(playerPos);
+    }
 }
 
-void CollisionAvoidance::HandleNPCWallCollision(KinematicBody* npc, const std::vector<Wall*>& walls) {
+void CollisionAvoidance::HandleNPCWallCollision(KinematicBody* npc, const std::vector<Wall*>& walls, const Vec3& cameraOffset) {
     Vec3 npcPos = npc->getPos();
     Vec3 npcVel = npc->getVel();
     float npcWidth = 1.0f;  // NPC width
     float npcHeight = 1.0f; // NPC height
 
     for (const Wall* wall : walls) {
-        ResolveWallCollision(npcPos, npcWidth, npcHeight, wall);
+        ResolveWallCollision(npcPos, npcWidth, npcHeight, wall, cameraOffset);
     }
 
     npc->setPos(npcPos);
     npc->setVel(npcVel);
 }
 
-void CollisionAvoidance::ResolveWallCollision(Vec3& position, float width, float height, const Wall* wall) {
-    float wallLeft = wall->getPosition().x;
-    float wallRight = wallLeft + wall->getWidth();
-    float wallTop = wall->getPosition().y;
-    float wallBottom = wallTop + wall->getHeight();
+void CollisionAvoidance::ResolveWallCollision(Vec3& position, float width, float height, const Wall* wall, const Vec3& cameraOffset) {
+    // Adjust wall position by subtracting the camera offset
+    float wallLeft = wall->getPosition().x - (wall->getWidth() / 2.0f) - cameraOffset.x;
+    float wallRight = wall->getPosition().x + (wall->getWidth() / 2.0f) - cameraOffset.x;
+    float wallTop = wall->getPosition().y - (wall->getHeight() / 2.0f) - cameraOffset.y;
+    float wallBottom = wall->getPosition().y + (wall->getHeight() / 2.0f) - cameraOffset.y;
 
-    // Check x-axis collision
-    if (position.x + width > wallLeft && position.x < wallRight &&
-        position.y + height > wallTop && position.y < wallBottom) {
+    // Check for overlap on the x-axis
+    if (position.x + (width / 2.0f) > wallLeft && position.x - (width / 2.0f) < wallRight &&
+        position.y + (height / 2.0f) > wallTop && position.y - (height / 2.0f) < wallBottom) {
 
-        float overlapLeft = (position.x + width) - wallLeft;
-        float overlapRight = wallRight - position.x;
+        // Calculate overlap amounts
+        float overlapLeft = (position.x + (width / 2.0f)) - wallLeft;
+        float overlapRight = wallRight - (position.x - (width / 2.0f));
+        float overlapTop = (position.y + (height / 2.0f)) - wallTop;
+        float overlapBottom = wallBottom - (position.y - (height / 2.0f));
 
-        if (overlapLeft < overlapRight) {
-            position.x -= std::min(overlapLeft, smoothMovementValue);
+        // Resolve collision on the axis with the smallest overlap
+        if (overlapLeft < overlapRight && overlapLeft < overlapTop && overlapLeft < overlapBottom) {
+            position.x -= overlapLeft;
+        }
+        else if (overlapRight < overlapLeft && overlapRight < overlapTop && overlapRight < overlapBottom) {
+            position.x += overlapRight;
+        }
+        else if (overlapTop < overlapBottom) {
+            position.y -= overlapTop;
         }
         else {
-            position.x += std::min(overlapRight, smoothMovementValue);
-        }
-
-    }
-
-    // Check y-axis collision
-    if (position.x + width > wallLeft && position.x < wallRight &&
-        position.y + height > wallTop && position.y < wallBottom) {
-
-        float overlapTop = (position.y + height) - wallTop;
-        float overlapBottom = wallBottom - position.y;
-
-        if (overlapTop < overlapBottom) {
-            position.y -= std::min(overlapTop, smoothMovementValue);
-        }
-        else {
-            position.y += std::min(overlapBottom, smoothMovementValue);
+            position.y += overlapBottom;
         }
     }
 }
+
+
 
 void CollisionAvoidance::HandlePlayerEnemyCollision(PlayerBody* player, Character* enemy, SDL_Renderer* renderer, const Vec3& cameraOffset) {
     if (!player || !enemy) {
@@ -130,33 +127,31 @@ void CollisionAvoidance::HandlePlayerEnemyCollision(PlayerBody* player, Characte
     static SDL_Texture* originalTexture = enemy->getBody()->getTexture();
     static bool isCollisionTexture = false;
 
-    if (xOverlap && yOverlap) {
-        // Collision detected
-        std::cout << "Collision detected between Player and Enemy!" << std::endl;
+    //if (xOverlap && yOverlap) {
 
-        if (!isCollisionTexture) {
-            // Change enemy's texture to indicate collision
-            SDL_Surface* collisionImage = IMG_Load("Pinky.png");
-            if (!collisionImage) {
-                std::cerr << "Failed to load collision image: " << IMG_GetError() << std::endl;
-                return;
-            }
-            SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
-            SDL_FreeSurface(collisionImage);
+    //    if (!isCollisionTexture) {
+    //        // Change enemy's texture to indicate collision
+    //        SDL_Surface* collisionImage = IMG_Load("Pinky.png");
+    //        if (!collisionImage) {
+    //            std::cerr << "Failed to load collision image: " << IMG_GetError() << std::endl;
+    //            return;
+    //        }
+    //        SDL_Texture* collisionTexture = SDL_CreateTextureFromSurface(renderer, collisionImage);
+    //        SDL_FreeSurface(collisionImage);
 
-            if (collisionTexture) {
-                enemy->getBody()->setTexture(collisionTexture);
-                isCollisionTexture = true;
-            }
-        }
-    }
-    else {
-        // No collision, reset texture
-        if (isCollisionTexture && originalTexture) {
-            enemy->getBody()->setTexture(originalTexture);
-            isCollisionTexture = false;
-        }
-    }
+    //        if (collisionTexture) {
+    //            enemy->getBody()->setTexture(collisionTexture);
+    //            isCollisionTexture = true;
+    //        }
+    //    }
+    //}
+    //else {
+    //    // No collision, reset texture
+    //    if (isCollisionTexture && originalTexture) {
+    //        enemy->getBody()->setTexture(originalTexture);
+    //        isCollisionTexture = false;
+    //    }
+    //}
 }
 
 

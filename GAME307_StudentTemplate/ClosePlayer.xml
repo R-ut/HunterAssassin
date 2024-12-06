@@ -1,0 +1,7 @@
+<TrueNode type="PlayerCloseRange">
+	<TrueNode type="Action" value="5"/>
+	<!-- FLEE -->
+	<FalseNode type="Action" value="1"/>
+	<!-- SEEK -->
+</TrueNode>
+

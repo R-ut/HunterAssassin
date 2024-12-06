@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DecisionTree type="PlayerInRange">
+	<TrueNode type="PlayerCloseRange">
+		<TrueNode type="Action" value="5"/>
+		<!-- FLEE -->
+		<FalseNode type="Action" value="3"/>
+		<!-- EVADE -->
+	</TrueNode>
+	<FalseNode type="PlayerFarRange">
+		<TrueNode type="Action" value="2"/>
+		<!-- PURSUE -->
+		<FalseNode type="Action" value="0"/>
+		<!-- DO_NOTHING -->
+	</FalseNode>
+</DecisionTree>
+
+
+

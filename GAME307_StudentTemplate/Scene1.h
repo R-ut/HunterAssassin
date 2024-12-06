@@ -38,12 +38,8 @@ private:
 	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
 	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
 
-	CollisionAvoidance collisionAvoidance;
-
 	KinematicBody* myNPC;
 	Character* Enemy1;
-	Character* Enemy2;
-
 	Vec3 cameraOffset;
 
 	Graph* graph;
@@ -62,10 +58,6 @@ public:
 	void OnDestroy();
 	void Update(const float time);
 	void Render();
-	//overridden work 
-	
-	const std::vector<Wall*>& getWalls() const;
-	
 	void HandleEvents(const SDL_Event &event);
 	//Highlight the explored tiles as well as the path tiles
 	void highlightExploredTiles(Node* startNode, Node* targetNode);
