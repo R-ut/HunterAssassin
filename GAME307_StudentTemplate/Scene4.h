@@ -26,11 +26,11 @@ using namespace MATH;
 class Scene4 : public Scene {
 private:
 	SDL_Window* window;
-	float xAxis = 25.0f;
-	float yAxis = 15.0f;
+	float xAxis = 35.0f;
+	float yAxis = 25.0f;
 	SDL_Renderer* renderer;
 	Matrix4 projectionMatrix;
-	Matrix4     inverseProjection;
+	Matrix4 inverseProjection;
 	SDL_Texture* backgroundTexture;  // Background texture
 	float tileSize = 1.0f; // Size of each tile
 	//calculate the number of rows and columns for the tiles

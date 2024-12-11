@@ -6,8 +6,8 @@ Scene4::Scene4(SDL_Window* sdlWindow_, GameManager* game_) {
 	window = sdlWindow_;
 	game = game_;
 	renderer = SDL_GetRenderer(window);
-	xAxis = 25.0f;
-	yAxis = 15.0f;
+	xAxis = 35.0f;
+	yAxis = 25.0f;
 	cameraOffset = Vec3(0.0f, 0.0f, 0.0f);
 	// create a NPC
 	myNPC = NULL;
@@ -343,7 +343,7 @@ void Scene4::Update(const float deltaTime) {
 	Matrix4 ortho = MMath::orthographic(left, right, bottom, top, 0.0f, 1.0f);
 	projectionMatrix = ndc * ortho;
 
-	//game->getPlayer()->Update(deltaTime);
+	
 
 
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
@@ -545,22 +545,6 @@ void Scene4::HandleEnemyWallCollision_(Character* enemy) {
 void Scene4::Render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-
-	// Render the background
-	SDL_Rect bgRect;
-	bgRect.x = static_cast<int>(-cameraOffset.x);
-	bgRect.y = static_cast<int>(-cameraOffset.y);
-	bgRect.w = static_cast<int>(xAxis);
-	bgRect.h = static_cast<int>(yAxis);
-	//SDL_RenderCopy(renderer, backgroundTexture, nullptr, &bgRect);
-
-	//Rut overrode this work
-	 //Rendering tiles
-	for (int i = 0; tiles.size() > i; i++) {
-		for (int j = 0; tiles[i].size() > j; j++) {
-			tiles[i][j]->Render();
-		}
-	}
 
 	if (enemy1) {
 		enemy1->render(cameraOffset, 0.15f, projectionMatrix, false);
