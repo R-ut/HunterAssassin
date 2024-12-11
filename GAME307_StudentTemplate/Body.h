@@ -85,6 +85,7 @@ public:
 	virtual void setVel(Vec3 vel_);
 
     void setColor(const Vec3& color_);
+    Vec3 getFacingDirection() const;
 };
 
 #endif /* BODY_H */

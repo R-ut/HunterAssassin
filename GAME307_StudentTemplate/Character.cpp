@@ -140,6 +140,7 @@ void Character::Update(float deltaTime) {
         }
     }
 
+
     // Update velocity with steering output
     Vec3 velocity = body->getVel();
     velocity += steering->linear * deltaTime;

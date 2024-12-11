@@ -24,7 +24,7 @@ public:
 		float maxAcceleration_ = 1.0f,
 		float maxRotation_ = 1.0f,
 		float maxAngular_ = 1.0f,
-		float heath_ = 1.0f
+		float heath_ = 100.0f
 	) : Body{ pos_, vel_, accel_, mass_
 		, radius_
 		, orientation_
@@ -39,6 +39,10 @@ public:
 	{}
 
 	void Update(float deltaTime, SteeringOutput* steering);
+
+	float getHealth() const { return health; }
+	void reduceHealth(float health_) { health -= health_; }
+
 };
 
 #endif

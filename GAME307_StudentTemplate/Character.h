@@ -60,6 +60,8 @@ public:
     float getRadius() const { return radius; }
     void setRadius(float r) { radius = r; }
     float getScale() const { return scale; }
+    float getHealth() const { return body->getHealth(); }
+    void reduceHealth(float health_) { body->reduceHealth(health_); }
     void setScale(float newScale) { scale = newScale; }
     // Update function
     void Update(float time);

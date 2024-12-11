@@ -353,8 +353,14 @@ void Scene4::OnDestroy()
 	if (soundEngine) soundEngine->drop();
 
 	// Clean up walls
-	for (Wall* wall : walls) {
-		delete wall;
+	if (walls.size() > 0) {
+		for (Wall* wall : walls) {
+			if (wall)
+			{
+				delete wall;
+			}
+			break;
+		}
 	}
 	walls.clear();
 
@@ -366,6 +372,11 @@ void Scene4::OnDestroy()
 
 
 void Scene4::Update(const float deltaTime) {
+
+	if (killCount == 4) {
+		std::cout << "YOU WIN" << std::endl;
+		return;
+	}
 
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
@@ -380,9 +391,10 @@ void Scene4::Update(const float deltaTime) {
 	Matrix4 ortho = MMath::orthographic(left, right, bottom, top, 0.0f, 1.0f);
 	projectionMatrix = ndc * ortho;
 
-	
+	Vec3 playerFacing = game->getPlayer()->getFacingDirection(); // Use orientation to compute facing direction
+	Vec3 toEnemy; 
 
-
+	if (myNPC) {
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 	Node* startNode = tiles[npcY][npcX]->getNode();
@@ -407,7 +419,7 @@ void Scene4::Update(const float deltaTime) {
 		steering = seeker->getSteering();
 		myNPC->Update(deltaTime, steering);
 	}
-	if (myNPC) {
+	
 		// Update KinematicBody (myNPC)
 		Vec3 position = myNPC->getPos();
 		Vec3 velocity = myNPC->getVel();
@@ -440,33 +452,102 @@ void Scene4::Update(const float deltaTime) {
 			velocity.y = -velocity.y; // Reverse velocity
 		}
 
+		toEnemy = VMath::normalize(myNPC->getPos() - game->getPlayer()->getPos());
+		float dotProduct = VMath::dot(playerFacing, toEnemy);
+		if (dotProduct > 0.8f && VMath::distance(game->getPlayer()->getPos(), myNPC->getPos()) < 3.0f) {
+			myNPC->reduceHealth(25.0f);
+		}
+		if (myNPC->getHealth() <= 0.0f) {
+			delete myNPC;
+			myNPC = nullptr;
+			killCount++;
+			return;
+		}
+
+
 		// Update myNPC's position and velocity
 		myNPC->setPos(position);
 		myNPC->setVel(velocity);
 
 	}
+
 	collisionAvoidance->HandlePlayerWallCollision(game->getPlayer(), walls, cameraOffset);
 
-	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy1, renderer, cameraOffset);
-	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy2, renderer, cameraOffset);
-	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy3, renderer, cameraOffset);
-	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy4, renderer, cameraOffset);
-
-	// Handle enemy-wall collisions with camera offset
-	HandleEnemyWallCollision(enemy1, cameraOffset);
-	HandleEnemyWallCollision_(enemy2);
-	HandleEnemyWallCollision_(enemy3);
-	HandleEnemyWallCollision(enemy4, cameraOffset);
-
 	// Update decision - making and positions for each enemy
-	if (enemy1) enemy1->Update(deltaTime);
-	if (enemy2) enemy2->Update(deltaTime);
-	if (enemy3) enemy3->Update(deltaTime);
-	if (enemy4) enemy4->Update(deltaTime);
+	if (enemy1) 
+	{ 
+		collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy1, renderer, cameraOffset);
+		HandleEnemyWallCollision(enemy1, cameraOffset);
+		toEnemy = VMath::normalize(enemy1->getPos() - game->getPlayer()->getPos());
+		float dotProduct = VMath::dot(playerFacing, toEnemy);
+		if (dotProduct > 0.8f && VMath::distance(game->getPlayer()->getPos(), enemy1->getPos()) < 3.0f) {
+			enemy1->reduceHealth(25.0f);
+		}
+		if (enemy1->getHealth() <= 0.0f) {
+			enemy1->OnDestroy();
+			delete enemy1;
+			enemy1 = nullptr;
+			killCount++;
+			return;
+		}
+		enemy1->Update(deltaTime);
+	}
+	if (enemy2) {
+		collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy2, renderer, cameraOffset);
+		HandleEnemyWallCollision(enemy2, cameraOffset);
+		toEnemy = VMath::normalize(enemy2->getPos() - game->getPlayer()->getPos());
+		float dotProduct = VMath::dot(playerFacing, toEnemy);
+		if (dotProduct > 0.8f && VMath::distance(game->getPlayer()->getPos(), enemy2->getPos()) < 3.0f) {
+			enemy2->reduceHealth(25.0f);
+		}
+		if (enemy2->getHealth() <= 0.0f) {
+			enemy2->OnDestroy();
+			delete enemy2;
+			enemy2 = nullptr;
+			killCount++;
+			return;
+		}
+		enemy2->Update(deltaTime);
+	}
+	if (enemy3) {
+		collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy3, renderer, cameraOffset);
+		HandleEnemyWallCollision(enemy3, cameraOffset);
+		toEnemy = VMath::normalize(enemy3->getPos() - game->getPlayer()->getPos());
+		float dotProduct = VMath::dot(playerFacing, toEnemy);
+		if (dotProduct > 0.8f && VMath::distance(game->getPlayer()->getPos(), enemy3->getPos()) < 3.0f) {
+			enemy3->reduceHealth(25.0f);
+		}
+		if (enemy3->getHealth() <= 0.0f) {
+			enemy3->OnDestroy();
+			delete enemy3;
+			enemy3 = nullptr;
+			killCount++;
+			return;
+		}
+		enemy3->Update(deltaTime);
+	}
+	if (enemy4) {
+		collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy4, renderer, cameraOffset);
+		HandleEnemyWallCollision(enemy4, cameraOffset);
+		toEnemy = VMath::normalize(enemy4->getPos() - game->getPlayer()->getPos());
+		float dotProduct = VMath::dot(playerFacing, toEnemy);
+		if (dotProduct > 0.8f && VMath::distance(game->getPlayer()->getPos(), enemy4->getPos()) < 3.0f) {
+			enemy4->reduceHealth(25.0f);
+		}
+		if (enemy4->getHealth() <= 0.0f) {
+			enemy4->OnDestroy();
+			delete enemy4;
+			enemy4 = nullptr;
+			killCount++;
+			return;
+		}
+		enemy4->Update(deltaTime);
+	}
 	// Update player
 	if (game->getPlayer()) {
 		game->getPlayer()->Update(deltaTime);
 	}
+	
 }
 void Scene4::HandleEnemyWallCollision(Character* enemy, const Vec3& cameraOffset) {
 	if (!enemy) return; // Ensure the enemy exists
@@ -584,7 +665,7 @@ void Scene4::Render() {
 	SDL_RenderClear(renderer);
 
 	if (enemy1) {
-		enemy1->render(cameraOffset, 0.15f, projectionMatrix, false);
+		enemy1->render(cameraOffset, 0.15f, projectionMatrix, true);
 	}
 
 
@@ -599,13 +680,17 @@ void Scene4::Render() {
 
 
 	if (enemy4) {
-		enemy4->render(cameraOffset, 0.15f, projectionMatrix, false);
+		enemy4->render(cameraOffset, 0.15f, projectionMatrix, true);
 	}
 	// Render walls
 	for (Wall* wall : walls) {
 		wall->Render(projectionMatrix, cameraOffset);
 	}
-	renderMyNPC();
+	if (myNPC)
+	{
+		renderMyNPC();
+	}
+	
 	// render the player
 	game->RenderPlayer(5.10f);
 
@@ -676,25 +761,26 @@ void Scene4::HandleEvents(const SDL_Event& event)
 		//gails idea for getting the current tile
 		int tileX = static_cast<int>(worldPos.x / tileSize);
 		int tileY = static_cast<int>(worldPos.y / tileSize);
-
-		int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
-		int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
-		//Checking if the player is in boundry
-		if (tileX >= 0 && tileX < cols && tileY >= 0 && tileY < rows) {
-			//Get the node using the tile row and column
-			Node* selectedNode = tiles[tileY][tileX]->getNode();
-
-			// Handle left and right mouse button clicks
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				// Handle left-click for pathfinding
-				Node* startNode = tiles[npcY][npcX]->getNode();
+		if (myNPC) {
+			int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
+			int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
+			//Checking if the player is in boundry
+			if (tileX >= 0 && tileX < cols && tileY >= 0 && tileY < rows) {
 				//Get the node using the tile row and column
-				highlightExploredTiles(startNode, selectedNode);
-			}
-			else if (event.button.button == SDL_BUTTON_RIGHT) {
-				// Handle right-click to create a wall
-				addWallToGraph(tileX, tileY);
-				std::cout << "Wall added at: " << tileX << ", " << tileY << std::endl;
+				Node* selectedNode = tiles[tileY][tileX]->getNode();
+
+				// Handle left and right mouse button clicks
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					// Handle left-click for pathfinding
+					Node* startNode = tiles[npcY][npcX]->getNode();
+					//Get the node using the tile row and column
+					highlightExploredTiles(startNode, selectedNode);
+				}
+				else if (event.button.button == SDL_BUTTON_RIGHT) {
+					// Handle right-click to create a wall
+					addWallToGraph(tileX, tileY);
+					std::cout << "Wall added at: " << tileX << ", " << tileY << std::endl;
+				}
 			}
 		}
 	}

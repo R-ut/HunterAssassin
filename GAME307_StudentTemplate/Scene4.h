@@ -40,6 +40,7 @@ private:
 	Character* enemy2;
 	Character* enemy3;
 	Character* enemy4;
+	int killCount = 0;
 	CollisionAvoidance* collisionAvoidance;
 	KinematicBody* myNPC;
 	Vec3 cameraOffset;

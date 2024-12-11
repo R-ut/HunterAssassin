@@ -112,3 +112,9 @@ void Body::setColor(const Vec3& color_)
 {
 	color = color_;
 }
+
+
+Vec3 Body::getFacingDirection() const {
+    // Use the orientation to compute the direction
+    return VMath::normalize(Vec3(cos(getOrientation()), sin(getOrientation()), 0.0f));
+}
