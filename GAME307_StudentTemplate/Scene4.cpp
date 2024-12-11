@@ -11,7 +11,11 @@ Scene4::Scene4(SDL_Window* sdlWindow_, GameManager* game_) {
 	cameraOffset = Vec3(0.0f, 0.0f, 0.0f);
 	// create a NPC
 	myNPC = NULL;
-	Enemy1 = nullptr;
+	// Initialize enemy pointers
+	enemy1 = nullptr;
+	enemy2 = nullptr;
+	enemy3 = nullptr;
+	enemy4 = nullptr;
 }
 
 Scene4::~Scene4() {}
@@ -89,12 +93,105 @@ bool Scene4::OnCreate() {
 	}
 
 
-	// Set up characters, choose good values for the constructor
-	// or use the defaults, like this
-	Enemy1 = new Character();
-	if (!Enemy1->OnCreate(this) || !Enemy1->setTextureWith("ToxicHound.gif"))
-	{
+	// Create 4 enemies and place them in different corners
+		enemy1 = new Character();
+	if (!enemy1->OnCreate(this) || !enemy1->setTextureWith("Blinky.png") ||
+		!enemy1->readDecisionTreeFromFile("PlayerRange.xml")) {
+		std::cerr << "Error creating Enemy1 in Scene2.\n";
 		return false;
+	}
+	enemy1->getBody()->setPos(Vec3(2.0f, 2.0f, 0.0f)); // bottom-left corner
+
+	enemy2 = new Character();
+	if (!enemy2->OnCreate(this) || !enemy2->setTextureWith("Pinky.png") ||
+		!enemy2->readDecisionTreeFromFile("nearPlayer.xml")) {
+		std::cerr << "Error creating Enemy2 in Scene2.\n";
+		return false;
+	}
+	enemy2->getBody()->setPos(Vec3(xAxis - 3.0f, 6.0f, 0.0f)); // bottom-right corner
+
+	enemy3 = new Character();
+	if (!enemy3->OnCreate(this) || !enemy3->setTextureWith("Inky.png") ||
+		!enemy3->readDecisionTreeFromFile("FarRange.xml")) {
+		std::cerr << "Error creating Enemy3 in Scene2.\n";
+		return false;
+	}
+	enemy3->getBody()->setPos(Vec3(2.0f, yAxis - 2.0f, 0.0f)); // top-left corner
+
+	enemy4 = new Character();
+	if (!enemy4->OnCreate(this) || !enemy4->setTextureWith("Clyde.png") ||
+		!enemy4->readDecisionTreeFromFile("ClosePlayer.xml")) {
+		std::cerr << "Error creating Enemy4 in Scene2.\n";
+		return false;
+	}
+	enemy4->getBody()->setPos(Vec3(xAxis - 2.0f, yAxis - 2.0f, 0.0f)); // top-right corner
+
+
+	float wallWidth = 1.57f;  // Increased width for better visibility
+	float wallHeight = 1.57f; // Increased height for better visibility
+
+	// Bottom boundary
+	for (float x = 0.0f; x <= 25.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 0.8f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Top boundary
+	for (float x = 0.0f; x <= 18.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 15.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Top boundary Camera Follow
+	for (float x = 6.0f; x <= 27.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 19.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+	// Left boundary
+	for (float y = 0.0f; y <= 24.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(0.0f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Right boundary
+	for (float y = 0.0f; y <= 12.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(25.5f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// right boundary camera follow
+	for (float y = 0.0f; y <= 24.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(36.0f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Horizontal divider (lower part of the maze)
+	for (float x = 5.0f; x <= 20.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 4.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Horizontal divider (lower part of the maze) camera follow left side
+	for (float x = 25.5f; x <= 32.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 3.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Horizontal divider (lower part of the maze) camera follow right side
+	for (float x = 30.5f; x <= 35.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 8.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Vertical divider in the lower-left corner
+	for (float y = 4.0f; y <= 6.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(5.0f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Horizontal divider (middle part of the maze)
+	for (float x = 15.0f; x <= 25.5f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 8.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Horizontal divider (upper part of the maze)
+	for (float x = 6.0f; x <= 15.0f; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 12.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Small vertical wall in the upper-right corner
+	for (float y = 12.0f; y <= 15.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(18.5f, y, 0.0f), wallWidth, wallHeight, renderer));
 	}
 
 	// Create neighbors for flocking
@@ -193,6 +290,37 @@ void Scene4::OnDestroy()
 		}
 	}
 
+	// Clean up enemy objects
+	if (enemy1) {
+		enemy1->OnDestroy();
+		delete enemy1;
+		enemy1 = nullptr;
+	}
+
+	if (enemy2) {
+		enemy2->OnDestroy();
+		delete enemy2;
+		enemy2 = nullptr;
+	}
+
+	if (enemy3) {
+		enemy3->OnDestroy();
+		delete enemy3;
+		enemy3 = nullptr;
+	}
+
+	if (enemy4) {
+		enemy4->OnDestroy();
+		delete enemy4;
+		enemy4 = nullptr;
+	}
+
+	// Clean up walls
+	for (Wall* wall : walls) {
+		delete wall;
+	}
+	walls.clear();
+
 
 
 
@@ -280,13 +408,139 @@ void Scene4::Update(const float deltaTime) {
 		myNPC->setVel(velocity);
 
 	}
+	collisionAvoidance->HandlePlayerWallCollision(game->getPlayer(), walls, cameraOffset);
 
+	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy1, renderer, cameraOffset);
+	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy2, renderer, cameraOffset);
+	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy3, renderer, cameraOffset);
+	collisionAvoidance->HandlePlayerEnemyCollision(game->getPlayer(), enemy4, renderer, cameraOffset);
+
+	// Handle enemy-wall collisions with camera offset
+	HandleEnemyWallCollision(enemy1, cameraOffset);
+	HandleEnemyWallCollision_(enemy2);
+	HandleEnemyWallCollision_(enemy3);
+	HandleEnemyWallCollision(enemy4, cameraOffset);
+
+	// Update decision - making and positions for each enemy
+	if (enemy1) enemy1->Update(deltaTime);
+	if (enemy2) enemy2->Update(deltaTime);
+	if (enemy3) enemy3->Update(deltaTime);
+	if (enemy4) enemy4->Update(deltaTime);
 	// Update player
 	if (game->getPlayer()) {
 		game->getPlayer()->Update(deltaTime);
 	}
 }
+void Scene4::HandleEnemyWallCollision(Character* enemy, const Vec3& cameraOffset) {
+	if (!enemy) return; // Ensure the enemy exists
 
+	Vec3 enemyPos = enemy->getBody()->getPos();
+	Vec3 enemyVel = enemy->getBody()->getVel();
+	float enemyWidth = 1.57f;
+	float enemyHeight = 1.57f;
+
+	for (Wall* wall : walls) {
+		// Get wall boundaries relative to the camera offset
+		Vec3 wallPos = wall->getPosition() - cameraOffset;
+		float wallWidth = wall->getWidth();
+		float wallHeight = wall->getHeight();
+
+		// Calculate bounding boxes for enemy and wall
+		float enemyLeft = enemyPos.x;
+		float enemyRight = enemyPos.x + enemyWidth;
+		float enemyTop = enemyPos.y;
+		float enemyBottom = enemyPos.y + enemyHeight;
+
+		float wallLeft = wallPos.x - (wallWidth / 2.0f);
+		float wallRight = wallPos.x + (wallWidth / 2.0f);
+		float wallTop = wallPos.y - (wallHeight / 2.0f);
+		float wallBottom = wallPos.y + (wallHeight / 2.0f);
+
+		// Check if the enemy's bounding box overlaps the wall's bounding box
+		if (enemyRight > wallLeft && enemyLeft < wallRight &&
+			enemyBottom > wallTop && enemyTop < wallBottom) {
+
+			// Calculate overlap amounts
+			float overlapLeft = enemyRight - wallLeft;
+			float overlapRight = wallRight - enemyLeft;
+			float overlapTop = enemyBottom - wallTop;
+			float overlapBottom = wallBottom - enemyTop;
+
+			// Resolve collision on the axis with the smallest overlap
+			if (overlapLeft < overlapRight && overlapLeft < overlapTop && overlapLeft < overlapBottom) {
+				enemyPos.x -= overlapLeft; // Adjust position without stopping velocity
+			}
+			else if (overlapRight < overlapLeft && overlapRight < overlapTop && overlapRight < overlapBottom) {
+				enemyPos.x += overlapRight; // Adjust position without stopping velocity
+			}
+			else if (overlapTop < overlapBottom && overlapTop < overlapLeft && overlapTop < overlapRight) {
+				enemyPos.y -= overlapTop; // Adjust position without stopping velocity
+			}
+			else if (overlapBottom < overlapTop && overlapBottom < overlapLeft && overlapBottom < overlapRight) {
+				enemyPos.y += overlapBottom; // Adjust position without stopping velocity
+			}
+		}
+	}
+
+	// Update the enemy's position
+	enemy->getBody()->setPos(enemyPos);
+}
+
+void Scene4::HandleEnemyWallCollision_(Character* enemy) {
+	if (!enemy) return; // Ensure the enemy exists
+
+	Vec3 enemyPos = enemy->getBody()->getPos();
+	Vec3 enemyVel = enemy->getBody()->getVel();
+	float enemyWidth = 1.57f;
+	float enemyHeight = 1.57f;
+
+	for (Wall* wall : walls) {
+		// Get wall boundaries
+		Vec3 wallPos = wall->getPosition();
+		float wallWidth = wall->getWidth();
+		float wallHeight = wall->getHeight();
+
+		// Calculate bounding boxes for enemy and wall
+		float enemyLeft = enemyPos.x;
+		float enemyRight = enemyPos.x + enemyWidth;
+		float enemyTop = enemyPos.y;
+		float enemyBottom = enemyPos.y + enemyHeight;
+
+		float wallLeft = wallPos.x - (wallWidth / 2.0f);
+		float wallRight = wallPos.x + (wallWidth / 2.0f);
+		float wallTop = wallPos.y - (wallHeight / 2.0f);
+		float wallBottom = wallPos.y + (wallHeight / 2.0f);
+
+		// Check if the enemy's bounding box overlaps the wall's bounding box
+		if (enemyRight > wallLeft && enemyLeft < wallRight &&
+			enemyBottom > wallTop && enemyTop < wallBottom) {
+
+			// Calculate overlap amounts
+			float overlapLeft = enemyRight - wallLeft;
+			float overlapRight = wallRight - enemyLeft;
+			float overlapTop = enemyBottom - wallTop;
+			float overlapBottom = wallBottom - enemyTop;
+
+			// Resolve collision on the axis with the smallest overlap
+			if (overlapLeft < overlapRight && overlapLeft < overlapTop && overlapLeft < overlapBottom) {
+				enemyPos.x -= overlapLeft; // Adjust position without stopping velocity
+			}
+			else if (overlapRight < overlapLeft && overlapRight < overlapTop && overlapRight < overlapBottom) {
+				enemyPos.x += overlapRight; // Adjust position without stopping velocity
+			}
+
+			if (overlapTop < overlapBottom && overlapTop < overlapLeft && overlapTop < overlapRight) {
+				enemyPos.y -= overlapTop; // Adjust position without stopping velocity
+			}
+			else if (overlapBottom < overlapTop && overlapBottom < overlapLeft && overlapBottom < overlapRight) {
+				enemyPos.y += overlapBottom; // Adjust position without stopping velocity
+			}
+		}
+	}
+
+	// Set updated position back to the enemy
+	enemy->getBody()->setPos(enemyPos);
+}
 
 void Scene4::Render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -308,7 +562,28 @@ void Scene4::Render() {
 		}
 	}
 
+	if (enemy1) {
+		enemy1->render(cameraOffset, 0.15f, projectionMatrix, false);
+	}
 
+
+	if (enemy2) {
+		enemy2->render(cameraOffset, 0.15f, projectionMatrix, true);
+	}
+
+
+	if (enemy3) {
+		enemy3->render(cameraOffset, 0.15f, projectionMatrix, true);
+	}
+
+
+	if (enemy4) {
+		enemy4->render(cameraOffset, 0.15f, projectionMatrix, false);
+	}
+	// Render walls
+	for (Wall* wall : walls) {
+		wall->Render(projectionMatrix, cameraOffset);
+	}
 	renderMyNPC();
 	// render the player
 	game->RenderPlayer(5.10f);
@@ -420,4 +695,9 @@ void Scene4::addWallToGraph(int tileX, int tileY) {
 
 	// Mark the tile as a wall for rendering
 	tiles[tileY][tileX]->setWall(true);
+}
+
+const std::vector<Wall*>& Scene4::getWalls() const
+{
+	return walls;
 }

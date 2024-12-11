@@ -36,10 +36,14 @@ private:
 	//calculate the number of rows and columns for the tiles
 	int cols = ceil((xAxis - 0.5 * tileSize) / tileSize);
 	int rows = ceil((yAxis - 0.5 * tileSize) / tileSize);
-
+	Character* enemy1;
+	Character* enemy2;
+	Character* enemy3;
+	Character* enemy4;
+	CollisionAvoidance* collisionAvoidance;
 	KinematicBody* myNPC;
-	Character* Enemy1;
 	Vec3 cameraOffset;
+	std::vector<Wall*> walls; // Vector to store wall object
 
 	Graph* graph;
 	std::vector<Node*> sceneNodes;
@@ -63,6 +67,10 @@ public:
 	//Function to add a wall to the graph
 	void addWallToGraph(int tileX, int tileY);
 
+	const std::vector<Wall*>& getWalls() const;
+
+	void HandleEnemyWallCollision(Character* enemy, const Vec3& cameraOffset);
+	void HandleEnemyWallCollision_(Character* enemy);
 	float getxAxis() { return xAxis; }
 	float getyAxis() { return yAxis; }
 	SDL_Window* getWindow() { return window; }

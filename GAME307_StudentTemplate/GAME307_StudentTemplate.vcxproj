@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\vcpkg\packages\tinyxml2_x64-windows\lib;C:\packages\tinyxml2_x64-windows\lib\pkgconfig;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\vcpkg\packages\tinyxml2_x64-windows\lib;C:\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
