@@ -131,6 +131,26 @@ bool Scene4::OnCreate() {
 	float wallHeight = 1.57f; // Increased height for better visibility
 
 	// Bottom boundary
+	for (float x = 0.0f; x <= xAxis; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, 0.0f, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Top boundary
+	for (float x = 0.0f; x <= xAxis; x += 0.5f) {
+		walls.push_back(new Wall(Vec3(x, yAxis, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	// Left boundary
+	for (float y = 0.0f; y <= yAxis; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(0.0f, y, 0.0f), wallWidth, wallHeight, renderer));
+	}
+
+	//// Right boundary
+	//for (float y = 0.0f; y <= yAxis; y += 0.5f) {
+	//	walls.push_back(new Wall(Vec3(xAxis, y, 0.0f), wallWidth, wallHeight, renderer));
+	//}
+
+	// Bottom boundary
 	for (float x = 0.0f; x <= 25.5f; x += 0.5f) {
 		walls.push_back(new Wall(Vec3(x, 0.8f, 0.0f), wallWidth, wallHeight, renderer));
 	}
@@ -155,8 +175,8 @@ bool Scene4::OnCreate() {
 	}
 
 	// right boundary camera follow
-	for (float y = 0.0f; y <= 24.0f; y += 0.5f) {
-		walls.push_back(new Wall(Vec3(36.0f, y, 0.0f), wallWidth, wallHeight, renderer));
+	for (float y = 0.0f; y <= 25.0f; y += 0.5f) {
+		walls.push_back(new Wall(Vec3(35.50f, y, 0.0f), wallWidth, wallHeight, renderer));
 	}
 
 	// Horizontal divider (lower part of the maze)
