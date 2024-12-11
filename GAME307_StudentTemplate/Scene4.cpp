@@ -1,7 +1,12 @@
 #include "Scene4.h"
 #include <MMath.h>
+#include <irrKlang.h>
 
 using namespace MATH;
+using namespace irrklang;
+
+ISoundEngine* soundEngine = nullptr; // Global sound engine instance
+ISound* backgroundMusic = nullptr;   // Background music instance
 Scene4::Scene4(SDL_Window* sdlWindow_, GameManager* game_) {
 	window = sdlWindow_;
 	game = game_;
@@ -35,6 +40,16 @@ bool Scene4::OnCreate() {
 	
 	/// Turn on the SDL imaging subsystem
 	IMG_Init(IMG_INIT_PNG);
+
+	// Initialize IrrKlang audio engine
+	soundEngine = createIrrKlangDevice();
+	if (!soundEngine) {
+		std::cerr << "Could not initialize IrrKlang audio engine!" << std::endl;
+		return false;
+	}
+
+	// Play background music and store the ISound instance
+	backgroundMusic = soundEngine->play2D("media/Goblins_Dance_(Battle).wav", true, false, true);
 
 	// Load background image
 	SDL_Surface* bgSurface = IMG_Load("tileset x1.png"); // Image Path
@@ -334,6 +349,8 @@ void Scene4::OnDestroy()
 		delete enemy4;
 		enemy4 = nullptr;
 	}
+	// Drop the sound engine
+	if (soundEngine) soundEngine->drop();
 
 	// Clean up walls
 	for (Wall* wall : walls) {
@@ -619,6 +636,32 @@ void Scene4::renderMyNPC()
 
 void Scene4::HandleEvents(const SDL_Event& event)
 {
+	// Handle key press events to play sound effects
+	if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+		switch (event.key.keysym.scancode) {
+		case SDL_SCANCODE_P: // Pause or resume background music
+			if (backgroundMusic) {
+				bool isPaused = backgroundMusic->getIsPaused();
+				backgroundMusic->setIsPaused(!isPaused);
+				std::cout << (isPaused ? "Resuming music..." : "Pausing music...") << std::endl;
+			}
+			break;
+		case SDL_SCANCODE_E:
+			soundEngine->play2D("media/09_human_charging_1_loop.wav");
+			break;
+		case SDL_SCANCODE_R:
+			soundEngine->play2D("media/10_human_special_atk_1.wav");
+			break;
+		case SDL_SCANCODE_T:
+			soundEngine->play2D("media/26_sword_hit_1.wav");
+			break;
+		case SDL_SCANCODE_M:
+			soundEngine->play2D("media/Goblins_Den_(Regular).wav");
+			break;
+		default:
+			break;
+		}
+	}
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
 	//when mouse clicked gtet the cordinatees of it
