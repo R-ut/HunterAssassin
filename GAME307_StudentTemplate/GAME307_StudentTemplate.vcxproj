@@ -71,7 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\vcpkg\packages\tinyxml2_x64-windows\lib;C:\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\vcpkg\packages\tinyxml2_x64-windows\lib;C:\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\GameDev\IrrKlang\include;C:\GameDev\OpenGL\include;C:\GameDev\SDL\include;C:\GameDev\MathLibrary;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -84,8 +85,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\GameDev\SDL\lib;C:\vcpkg\packages\tinyxml2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\GameDev\SDL\lib;C:\vcpkg\packages\tinyxml2_x64-windows\lib;C:\GameDev\IrrKlang\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;tinyxml2.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
