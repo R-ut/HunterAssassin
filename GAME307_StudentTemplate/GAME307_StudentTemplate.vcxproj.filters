@@ -6,7 +6,6 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PlayerBody.cpp" />
-    <ClCompile Include="Scene1.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="Steering\KinematicBody.cpp">
@@ -64,14 +63,24 @@
     </ClCompile>
     <ClCompile Include="Flocking.cpp" />
     <ClCompile Include="BlendedSteering.cpp" />
-    <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
-    <ClCompile Include="Scene3.cpp" />
     <ClCompile Include="PlayerFarRange.cpp">
       <Filter>DecisionMaking</Filter>
     </ClCompile>
     <ClCompile Include="PlayerCloseRange.cpp">
       <Filter>DecisionMaking</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene4.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene3.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene2.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene1.cpp">
+      <Filter>Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,8 +88,6 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="PlayerBody.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Scene1.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="Steering\KinematicBody.h">
@@ -139,14 +146,27 @@
     </ClInclude>
     <ClInclude Include="Flocking.h" />
     <ClInclude Include="BlendedSteering.h" />
-    <ClInclude Include="Scene2.h" />
     <ClInclude Include="tinyxml2.h" />
-    <ClInclude Include="Scene3.h" />
     <ClInclude Include="PlayerFarRange.h">
       <Filter>DecisionMaking</Filter>
     </ClInclude>
     <ClInclude Include="PlayerCloseRange.h">
       <Filter>DecisionMaking</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene4.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene3.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene2.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene1.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +178,9 @@
     </Filter>
     <Filter Include="DecisionMaking">
       <UniqueIdentifier>{a209419c-eb2b-4cc2-9b6f-d237c7fa5145}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{78dd476d-5ca5-4c94-9ddb-d5b97b02a28a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

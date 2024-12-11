@@ -38,7 +38,7 @@ public:
 
 	Tile(Node* node_, Vec3 pos_, float width_, float height_, Scene* scene_);
 	virtual ~Tile() {}
-	void Render(const Vec3& cameraOffset);
+	void Render();
 	Node* getNode() { return node; }
 	Vec3 getPos() { return pos; }
 };

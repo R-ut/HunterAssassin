@@ -2,6 +2,7 @@
 #include "Scene1.h"
 #include "Scene2.h"
 #include "Scene3.h"
+#include "Scene4.h"
 #include "PlayerBody.h"
 GameManager::GameManager() {
 	windowPtr = nullptr;
@@ -40,7 +41,7 @@ bool GameManager::OnCreate() {
     // select scene for specific assignment
 
  
-        currentScene = new Scene2(windowPtr->GetSDL_Window(), this); // Initialize the first scene
+        currentScene = new Scene4(windowPtr->GetSDL_Window(), this); // Initialize the first scene
   
     
     // create player
@@ -160,6 +161,15 @@ void GameManager::handleEvents()
                     case SDL_SCANCODE_1:
                         LoadScene( 1 );
                         break;
+                    case SDL_SCANCODE_2:
+                        LoadScene(2);
+                        break;
+                    case SDL_SCANCODE_3:
+                        LoadScene(3);
+                        break;
+                    case SDL_SCANCODE_4:
+                        LoadScene(4);
+                        break;
                     default:
                         break;
                 }
@@ -219,6 +229,9 @@ void GameManager::LoadScene(int sceneID) {
     }
     else if (sceneID == 3) {
         currentScene = new Scene3(windowPtr->GetSDL_Window(), this);
+    }
+    else if (sceneID == 4) {
+        currentScene = new Scene4(windowPtr->GetSDL_Window(), this);
     }
 }
 

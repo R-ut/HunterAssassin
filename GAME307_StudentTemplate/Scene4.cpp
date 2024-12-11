@@ -1,10 +1,10 @@
-#include "Scene1.h"
+#include "Scene4.h"
 #include <MMath.h>
 
 using namespace MATH;
-Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
+Scene4::Scene4(SDL_Window* sdlWindow_, GameManager* game_) {
 	window = sdlWindow_;
-    game = game_;
+	game = game_;
 	renderer = SDL_GetRenderer(window);
 	xAxis = 25.0f;
 	yAxis = 15.0f;
@@ -14,18 +14,20 @@ Scene1::Scene1(SDL_Window* sdlWindow_, GameManager* game_){
 	Enemy1 = nullptr;
 }
 
-Scene1::~Scene1() {}
+Scene4::~Scene4() {}
 
-bool Scene1::OnCreate() {
+bool Scene4::OnCreate() {
 
 	//create tiles
-	createTiles(); 
+	createTiles();
+
 	int w, h;
-	SDL_GetWindowSize(window,&w,&h);
-	
+	SDL_GetWindowSize(window, &w, &h);
+
 	Matrix4 ndc = MMath::viewportNDC(w, h);
 	Matrix4 ortho = MMath::orthographic(0.0f, xAxis, 0.0f, yAxis, 0.0f, 5.0f);
 	projectionMatrix = ndc * ortho;
+
 	
 	/// Turn on the SDL imaging subsystem
 	IMG_Init(IMG_INIT_PNG);
@@ -64,9 +66,9 @@ bool Scene1::OnCreate() {
 		acceleration,
 		mass,
 		radius
-	
+
 	);
-	
+
 	image = IMG_Load("Clyde.png");
 	texture = SDL_CreateTextureFromSurface(renderer, image);
 	//error checking
@@ -90,7 +92,7 @@ bool Scene1::OnCreate() {
 	// Set up characters, choose good values for the constructor
 	// or use the defaults, like this
 	Enemy1 = new Character();
-	if (!Enemy1->OnCreate(this) || !Enemy1->setTextureWith("ToxicHound.gif") )
+	if (!Enemy1->OnCreate(this) || !Enemy1->setTextureWith("ToxicHound.gif"))
 	{
 		return false;
 	}
@@ -143,8 +145,8 @@ bool Scene1::OnCreate() {
 	return true;
 }
 
-void Scene1::createTiles() {
-	
+void Scene4::createTiles() {
+
 
 	tiles.resize(rows);
 
@@ -176,7 +178,7 @@ void Scene1::createTiles() {
 
 	}
 }
-void Scene1::OnDestroy() 
+void Scene4::OnDestroy()
 {
 	if (backgroundTexture) {
 		SDL_DestroyTexture(backgroundTexture);
@@ -192,32 +194,30 @@ void Scene1::OnDestroy()
 	}
 
 
-	
-	
+
+
 }
-//Creating the enum class to visually Compare between different kind of steering.
-//Steering behaviours
-enum class BehaviorState {
-	Pursuing,
-	Evading,
-	Arriving,
-	Seeking,
-	None
-};
-// Initializing current state which is set to NONE for now.
-BehaviorState currentState = BehaviorState::None;
 
 
-void Scene1::Update(const float deltaTime) {
 
-	// Update camera offset to follow the player
-	Vec3 playerPos = game->getPlayer()->getPos();
-	cameraOffset.x = playerPos.x - (xAxis / 2.0f);
-	cameraOffset.y = playerPos.y - (yAxis / 2.0f);
+void Scene4::Update(const float deltaTime) {
 
-	// Clamp camera offset within bounds
-	cameraOffset.x = std::max(0.0f, std::min(cameraOffset.x, xAxis - xAxis / 2.0f));
-	cameraOffset.y = std::max(0.0f, std::min(cameraOffset.y, yAxis - yAxis / 2.0f));
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	Matrix4 ndc = MMath::viewportNDC(w, h);
+
+	float left, right, top, bottom;
+	left = game->getPlayer()->getPos().x - 0.25f * xAxis;
+	right = game->getPlayer()->getPos().x + 0.25f * xAxis;
+	top = game->getPlayer()->getPos().y + 0.25f * yAxis;
+	bottom = game->getPlayer()->getPos().y - 0.25f * yAxis;
+
+	Matrix4 ortho = MMath::orthographic(left, right, bottom, top, 0.0f, 1.0f);
+	projectionMatrix = ndc * ortho;
+
+	//game->getPlayer()->Update(deltaTime);
+
+
 	int npcX = static_cast<int>(myNPC->getPos().x / tileSize);
 	int npcY = static_cast<int>(myNPC->getPos().y / tileSize);
 	Node* startNode = tiles[npcY][npcX]->getNode();
@@ -287,8 +287,8 @@ void Scene1::Update(const float deltaTime) {
 	}
 }
 
-	
-void Scene1::Render() {
+
+void Scene4::Render() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
@@ -304,18 +304,18 @@ void Scene1::Render() {
 	 //Rendering tiles
 	for (int i = 0; tiles.size() > i; i++) {
 		for (int j = 0; tiles[i].size() > j; j++) {
-				tiles[i][j]->Render();
+			tiles[i][j]->Render();
 		}
 	}
-	
-	
+
+
 	renderMyNPC();
 	// render the player
 	game->RenderPlayer(5.10f);
 
 	SDL_RenderPresent(renderer);
 }
-void Scene1::renderMyNPC()
+void Scene4::renderMyNPC()
 {
 	SDL_Rect rect;
 	Vec3 screenCoords;
@@ -338,7 +338,7 @@ void Scene1::renderMyNPC()
 	SDL_RenderCopyEx(renderer, myNPC->getTexture(), nullptr, &rect, degrees, nullptr, SDL_FLIP_NONE);
 }
 
-void Scene1::HandleEvents(const SDL_Event& event)
+void Scene4::HandleEvents(const SDL_Event& event)
 {
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
@@ -378,7 +378,7 @@ void Scene1::HandleEvents(const SDL_Event& event)
 	}
 }
 
-void Scene1::highlightExploredTiles(Node* startNode, Node* targetNode) {
+void Scene4::highlightExploredTiles(Node* startNode, Node* targetNode) {
 	// Clear previous highlights
 	//Manover over rows and columns of tiles
 	for (auto& row : tiles) {
@@ -409,7 +409,7 @@ void Scene1::highlightExploredTiles(Node* startNode, Node* targetNode) {
 		tiles[tileY][tileX]->setPath(true);  // Mark as path for red
 	}
 }
-void Scene1::addWallToGraph(int tileX, int tileY) {
+void Scene4::addWallToGraph(int tileX, int tileY) {
 	Node* wallNode = tiles[tileY][tileX]->getNode();
 
 	// Remove connections to this node in the graph, making it a "wall"

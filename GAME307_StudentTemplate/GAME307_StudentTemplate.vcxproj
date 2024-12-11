@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;C:\Users\laksh\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib\pkgconfig;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\vcpkg\packages\tinyxml2_x64-windows\lib;C:\packages\tinyxml2_x64-windows\lib\pkgconfig;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -84,7 +84,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\GameDev\SDL\lib;C:\Users\ahird\Downloads\vcpkg\packages\tinyxml2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\GameDev\SDL\lib;C:\vcpkg\packages\tinyxml2_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -160,6 +160,7 @@
     <ClCompile Include="Scene1.cpp" />
     <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="Scene3.cpp" />
+    <ClCompile Include="Scene4.cpp" />
     <ClCompile Include="Seek.cpp" />
     <ClCompile Include="StaticBody.cpp" />
     <ClCompile Include="SteeringBehaviour.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Scene1.h" />
     <ClInclude Include="Scene2.h" />
     <ClInclude Include="Scene3.h" />
+    <ClInclude Include="Scene4.h" />
     <ClInclude Include="Seek.h" />
     <ClInclude Include="StaticBody.h" />
     <ClInclude Include="SteeringBehaviour.h" />
