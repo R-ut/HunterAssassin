@@ -61,7 +61,6 @@ public:
     void setRadius(float r) { radius = r; }
     float getScale() const { return scale; }
     void setScale(float newScale) { scale = newScale; }
-
     // Update function
     void Update(float time);
 

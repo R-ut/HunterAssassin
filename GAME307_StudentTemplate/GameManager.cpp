@@ -58,6 +58,7 @@ bool GameManager::OnCreate() {
     Vec3 position(0.5f * currentScene->getxAxis(), 0.5f * currentScene->getyAxis(), 0.0f);
     Vec3 velocity(0.0f, 0.0f, 0.0f);
     Vec3 acceleration(0.0f, 0.0f, 0.0f);
+    float health = 100.0f;
 
     player = new PlayerBody
     (
@@ -73,6 +74,7 @@ bool GameManager::OnCreate() {
         maxAcceleration,
         maxRotation,
         maxAngular,
+        health,
         this
     );
     if ( player->OnCreate() == false ) {

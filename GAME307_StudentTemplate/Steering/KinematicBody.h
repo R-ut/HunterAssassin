@@ -23,7 +23,8 @@ public:
 		float maxSpeed_ = 1.0f,
 		float maxAcceleration_ = 1.0f,
 		float maxRotation_ = 1.0f,
-		float maxAngular_ = 1.0f
+		float maxAngular_ = 1.0f,
+		float heath_ = 1.0f
 	) : Body{ pos_, vel_, accel_, mass_
 		, radius_
 		, orientation_
@@ -33,6 +34,7 @@ public:
 		, maxAcceleration_
 		, maxRotation_
 		, maxAngular_
+		, heath_ 
 	}
 	{}
 

@@ -25,7 +25,8 @@ public:
         maxSpeed_,
         0.0f,
         maxRotation_,
-        0.0f
+        0.0f,
+        100.0f
     }
     {}
     void Update(float deltaTime, KinematicSteeringOutput* steering_);

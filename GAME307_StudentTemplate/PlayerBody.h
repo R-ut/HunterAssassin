@@ -37,6 +37,7 @@ public:
         float maxAcceleration_,
         float maxRotation_,
         float maxAngular_,
+        float health_,
         GameManager *game_
     ) : Body{
           pos_
@@ -51,6 +52,7 @@ public:
         , maxAcceleration_
         , maxRotation_
         , maxAngular_
+        , health_
     }
         , game{ game_ }
     {}
