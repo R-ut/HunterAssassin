@@ -373,7 +373,7 @@ void Scene4::OnDestroy()
 
 void Scene4::Update(const float deltaTime) {
 
-	if (killCount == 4) {
+	if (killCount == 5) {
 		std::cout << "YOU WIN" << std::endl;
 		return;
 	}
@@ -468,7 +468,6 @@ void Scene4::Update(const float deltaTime) {
 		// Update myNPC's position and velocity
 		myNPC->setPos(position);
 		myNPC->setVel(velocity);
-
 	}
 
 	collisionAvoidance->HandlePlayerWallCollision(game->getPlayer(), walls, cameraOffset);
