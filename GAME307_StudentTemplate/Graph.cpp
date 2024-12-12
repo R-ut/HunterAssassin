@@ -93,7 +93,6 @@ float heuristic(Node* a, Node* b) {
 std::vector<Node*> Graph::findPath(Node* startNode, Node* goalNode, std::vector<Node*> &exploredNodes)
 {
     std::vector<Node*> result;
-    std::cout << "Finding path from " << startNode->getLabel() << " to " << goalNode->getLabel() << "\n";
     // declarations
     float new_cost;
     float priority;

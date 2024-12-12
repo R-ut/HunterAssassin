@@ -2,6 +2,7 @@
 #include <MMath.h>
 #include <irrKlang.h>
 
+
 using namespace MATH;
 using namespace irrklang;
 
@@ -37,6 +38,14 @@ bool Scene4::OnCreate() {
 	Matrix4 ortho = MMath::orthographic(0.0f, xAxis, 0.0f, yAxis, 0.0f, 5.0f);
 	projectionMatrix = ndc * ortho;
 
+
+
+
+
+
+
+
+
 	
 	/// Turn on the SDL imaging subsystem
 	IMG_Init(IMG_INIT_PNG);
@@ -50,6 +59,34 @@ bool Scene4::OnCreate() {
 
 	// Play background music and store the ISound instance
 	backgroundMusic = soundEngine->play2D("media/Travis Scott - sdp interlude (Extended) (Instrumental).wav", true, false, true);
+
+
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
+		std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
+		return false;
+	}
+
+
+	SDL_GameController* controller = nullptr;
+
+	if (SDL_NumJoysticks() > 0) {
+		if (SDL_IsGameController(0)) { // Check if the joystick is a compatible game controller
+			controller = SDL_GameControllerOpen(0);
+			if (controller == nullptr) {
+				std::cerr << "Failed to open game controller: " << SDL_GetError() << "\n";
+			}
+			else {
+				std::cout << "Game controller 0 opened: " << SDL_GameControllerName(controller) << "\n";
+			}
+		}
+		else {
+			std::cerr << "Joystick 0 is not a compatible game controller.\n";
+		}
+	}
+	else {
+		std::cerr << "No joysticks/controllers connected!\n";
+	}
+
 
 	// Load background image
 	SDL_Surface* bgSurface = IMG_Load("tileset x1.png"); // Image Path
@@ -726,28 +763,52 @@ void Scene4::renderMyNPC()
 void Scene4::HandleEvents(const SDL_Event& event)
 {
 	// Handle key press events to play sound effects
-	if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
-		switch (event.key.keysym.scancode) {
-		case SDL_SCANCODE_P: // Pause or resume background music
+	if ((event.type == SDL_KEYDOWN && event.key.repeat == 0) || event.type == SDL_CONTROLLERBUTTONDOWN) {
+		SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN; // Default to no scancode
+		bool isController = (event.type == SDL_CONTROLLERBUTTONDOWN);
+
+		
+		if (isController) {
+			switch (event.cbutton.button) {
+			case SDL_CONTROLLER_BUTTON_DPAD_LEFT: 
+				scancode = SDL_SCANCODE_E;
+				break;
+			case SDL_CONTROLLER_BUTTON_DPAD_UP: 
+				scancode = SDL_SCANCODE_P;
+				break;
+			case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: 
+				scancode = SDL_SCANCODE_R;
+				break;
+			default:
+				break;
+			}
+		}
+		else {
+			scancode = event.key.keysym.scancode; 
+		}
+
+		
+		switch (scancode) {
+		case SDL_SCANCODE_P:
 			if (backgroundMusic) {
 				bool isPaused = backgroundMusic->getIsPaused();
 				backgroundMusic->setIsPaused(!isPaused);
 				std::cout << (isPaused ? "Resuming music..." : "Pausing music...") << std::endl;
 			}
 			break;
-		case SDL_SCANCODE_E:
+		case SDL_SCANCODE_E: 
 			soundEngine->stopAllSounds();
 			soundEngine->play2D("media/An-Epic-Story(chosic.com).wav");
 			break;
-		case SDL_SCANCODE_R:
+		case SDL_SCANCODE_R: 
 			soundEngine->stopAllSounds();
 			soundEngine->play2D("media/Rick Roll (Different link + no ads).wav");
-			
 			break;
 		default:
 			break;
 		}
 	}
+
 	// send events to player as needed
 	game->getPlayer()->HandleEvents(event);
 	//when mouse clicked gtet the cordinatees of it
@@ -835,3 +896,4 @@ const std::vector<Wall*>& Scene4::getWalls() const
 {
 	return walls;
 }
+

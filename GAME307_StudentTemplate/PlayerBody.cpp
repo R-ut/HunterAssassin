@@ -21,6 +21,19 @@ bool PlayerBody::OnCreate()
         std::cerr << "Can't create the texture" << std::endl;
         return false;
     }
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
+        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
+        return false;
+    }
+
+    //SDL_Joystick* joystick = nullptr; // Pointer to joystick
+    //// Enable joystick events
+    //SDL_JoystickEventState(SDL_ENABLE);
+
+    //// Check for joysticks
+    //if (SDL_NumJoysticks() > 0) {
+    //    joystick = SDL_JoystickOpen(0); // Open the first joystick
+    //}
     return true;
 }
 
@@ -67,17 +80,62 @@ void PlayerBody::Render( float scale ) const
 
 void PlayerBody::HandleEvents( const SDL_Event& event )
 {
-    // if key pressed, set velocity or acceleration
+    // Handle key press and joystick events for velocity and acceleration
+    if ((event.type == SDL_KEYDOWN && event.key.repeat == 0) || event.type == SDL_CONTROLLERAXISMOTION) {
+        SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN; // Default to no scancode
+        bool isJoystick = (event.type == SDL_CONTROLLERAXISMOTION);
 
-    if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
-    {
-        switch ( event.key.keysym.scancode )
-        {
-            // This section demonstrates using velocity for player movement
-            //
-            // Need to always normalize speed, otherwise having two keys down
-            // results in velocity magnitude being sqrt(2) x maxSpeed.
-            // However, this is being done in Update()
+        if (isJoystick) {
+            const float deadzone = 8000; // Deadzone for joystick
+            const float scale = 32767.0f; // Maximum joystick axis value
+
+            switch (event.caxis.axis) {
+            case SDL_CONTROLLER_AXIS_LEFTX: // Left joystick X-axis for velocity.x
+                if (std::abs(event.caxis.value) > deadzone) {
+                    vel.x = maxSpeed * (event.caxis.value / scale);
+                }
+                else {
+                    vel.x = 0.0f; // Stop when within deadzone
+                }
+                break;
+
+            case SDL_CONTROLLER_AXIS_LEFTY: // Left joystick Y-axis for velocity.y
+                if (std::abs(event.caxis.value) > deadzone) {
+                    vel.y = maxSpeed * -(event.caxis.value / scale); // Invert Y for proper control
+                }
+                else {
+                    vel.y = 0.0f;
+                }
+                break;
+
+            case SDL_CONTROLLER_AXIS_RIGHTX: // Right joystick X-axis for acceleration.x
+                if (std::abs(event.caxis.value) > deadzone) {
+                    accel.x = maxAcceleration * (event.caxis.value / scale);
+                }
+                else {
+                    accel.x = 0.0f;
+                }
+                break;
+
+            case SDL_CONTROLLER_AXIS_RIGHTY: // Right joystick Y-axis for acceleration.y
+                if (std::abs(event.caxis.value) > deadzone) {
+                    accel.y = maxAcceleration * -(event.caxis.value / scale); // Invert Y for proper control
+                }
+                else {
+                    accel.y = 0.0f;
+                }
+                break;
+
+            default:
+                break;
+            }
+        }
+        else {
+            scancode = event.key.keysym.scancode;
+
+            // Handle keyboard inputs for velocity and acceleration
+            switch (scancode) {
+                // Velocity controls
             case SDL_SCANCODE_W:
                 vel.y = maxSpeed * 1.0f;
                 break;
@@ -91,10 +149,7 @@ void PlayerBody::HandleEvents( const SDL_Event& event )
                 vel.x = maxSpeed * 1.0f;
                 break;
 
-            // This section is for seeing how to use acceleration rather than velocity
-            // for player movement.
-            // Note: look at Update() to see that velocity is clipped, since
-            // continuous acceleration means continually increasing velocity.
+                // Acceleration controls
             case SDL_SCANCODE_DOWN:
                 accel.y = maxAcceleration * -1.0f;
                 break;
@@ -107,54 +162,80 @@ void PlayerBody::HandleEvents( const SDL_Event& event )
             case SDL_SCANCODE_RIGHT:
                 accel.x = maxAcceleration * 1.0f;
                 break;
+
             default:
                 break;
+            }
         }
     }
 
-    // if key is released, stop applying movement
+    // Handle key release events to stop movement
+    if ((event.type == SDL_KEYUP && event.key.repeat == 0) || event.type == SDL_CONTROLLERAXISMOTION) {
+        SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN; // Default to no scancode
+        bool isJoystick = (event.type == SDL_CONTROLLERAXISMOTION);
 
-    if( event.type == SDL_KEYUP && event.key.repeat == 0 )
-    {
-        switch ( event.key.keysym.scancode )
-        {
-            // This section demonstrates using velocity for player movement
-            //
-            // Need to always normalize velocity, otherwise if player
-            // releases one of two pressed keys, then speed remains at sqrt(0.5) of maxSpeed
+        if (isJoystick) {
+            const float deadzone = 8000; // Deadzone for joystick
+
+            switch (event.caxis.axis) {
+            case SDL_CONTROLLER_AXIS_LEFTX: // Left joystick X-axis for velocity.x
+                if (std::abs(event.caxis.value) <= deadzone) {
+                    vel.x = 0.0f; // Stop when within deadzone
+                }
+                break;
+
+            case SDL_CONTROLLER_AXIS_LEFTY: // Left joystick Y-axis for velocity.y
+                if (std::abs(event.caxis.value) <= deadzone) {
+                    vel.y = 0.0f;
+                }
+                break;
+
+            case SDL_CONTROLLER_AXIS_RIGHTX: // Right joystick X-axis for acceleration.x
+                if (std::abs(event.caxis.value) <= deadzone) {
+                    accel.x = 0.0f;
+                }
+                break;
+
+            case SDL_CONTROLLER_AXIS_RIGHTY: // Right joystick Y-axis for acceleration.y
+                if (std::abs(event.caxis.value) <= deadzone) {
+                    accel.y = 0.0f;
+                }
+                break;
+
+            default:
+                break;
+            }
+        }
+        else {
+            scancode = event.key.keysym.scancode;
+
+            // Stop keyboard movement
+            switch (scancode) {
             case SDL_SCANCODE_W:
-                vel.y = 0.0f;
-                if (VMath::mag( vel ) > VERY_SMALL) vel = VMath::normalize( vel ) * maxSpeed;
-                break;
-            case SDL_SCANCODE_A:
-                vel.x = -0.0f;
-                if (VMath::mag( vel ) > VERY_SMALL) vel = VMath::normalize( vel ) * maxSpeed;
-                break;
             case SDL_SCANCODE_S:
-                vel.y = -0.0f;
-                if (VMath::mag( vel ) > VERY_SMALL) vel = VMath::normalize( vel ) * maxSpeed;
+                vel.y = 0.0f;
+                if (VMath::mag(vel) > VERY_SMALL) vel = VMath::normalize(vel) * maxSpeed;
                 break;
+
+            case SDL_SCANCODE_A:
             case SDL_SCANCODE_D:
                 vel.x = 0.0f;
-                if (VMath::mag( vel ) > VERY_SMALL) vel = VMath::normalize( vel ) * maxSpeed;
+                if (VMath::mag(vel) > VERY_SMALL) vel = VMath::normalize(vel) * maxSpeed;
                 break;
-            
-            // This section is for seeing how to use acceleration rather than velocity
-            // for player movement.
+
             case SDL_SCANCODE_DOWN:
-                accel.y = 0.0;
-                break;
             case SDL_SCANCODE_UP:
                 accel.y = 0.0;
                 break;
+
             case SDL_SCANCODE_LEFT:
-                accel.x = 0.0;
-                break;
             case SDL_SCANCODE_RIGHT:
                 accel.x = 0.0;
                 break;
+
             default:
                 break;
+            }
         }
     }
 }
