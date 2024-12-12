@@ -49,7 +49,7 @@ bool Scene4::OnCreate() {
 	}
 
 	// Play background music and store the ISound instance
-	backgroundMusic = soundEngine->play2D("media/Goblins_Dance_(Battle).wav", true, false, true);
+	backgroundMusic = soundEngine->play2D("media/Travis Scott - sdp interlude (Extended) (Instrumental).wav", true, false, true);
 
 	// Load background image
 	SDL_Surface* bgSurface = IMG_Load("tileset x1.png"); // Image Path
@@ -461,6 +461,7 @@ void Scene4::Update(const float deltaTime) {
 			delete myNPC;
 			myNPC = nullptr;
 			killCount++;
+			soundEngine->play2D("media/Clyde.wav");
 			return;
 		}
 
@@ -487,6 +488,7 @@ void Scene4::Update(const float deltaTime) {
 			delete enemy1;
 			enemy1 = nullptr;
 			killCount++;
+			soundEngine->play2D("media/Blinky.wav");
 			return;
 		}
 		enemy1->Update(deltaTime);
@@ -504,6 +506,7 @@ void Scene4::Update(const float deltaTime) {
 			delete enemy2;
 			enemy2 = nullptr;
 			killCount++;
+			soundEngine->play2D("media/Pinky.wav");
 			return;
 		}
 		enemy2->Update(deltaTime);
@@ -521,6 +524,7 @@ void Scene4::Update(const float deltaTime) {
 			delete enemy3;
 			enemy3 = nullptr;
 			killCount++;
+			soundEngine->play2D("media/Inky.wav");
 			return;
 		}
 		enemy3->Update(deltaTime);
@@ -538,6 +542,7 @@ void Scene4::Update(const float deltaTime) {
 			delete enemy4;
 			enemy4 = nullptr;
 			killCount++;
+			soundEngine->play2D("media/Clyde.wav");
 			return;
 		}
 		enemy4->Update(deltaTime);
@@ -731,16 +736,13 @@ void Scene4::HandleEvents(const SDL_Event& event)
 			}
 			break;
 		case SDL_SCANCODE_E:
-			soundEngine->play2D("media/09_human_charging_1_loop.wav");
+			soundEngine->stopAllSounds();
+			soundEngine->play2D("media/An-Epic-Story(chosic.com).wav");
 			break;
 		case SDL_SCANCODE_R:
-			soundEngine->play2D("media/10_human_special_atk_1.wav");
-			break;
-		case SDL_SCANCODE_T:
-			soundEngine->play2D("media/26_sword_hit_1.wav");
-			break;
-		case SDL_SCANCODE_M:
-			soundEngine->play2D("media/Goblins_Den_(Regular).wav");
+			soundEngine->stopAllSounds();
+			soundEngine->play2D("media/Rick Roll (Different link + no ads).wav");
+			
 			break;
 		default:
 			break;
